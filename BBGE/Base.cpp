@@ -135,9 +135,9 @@ std::string removeSpaces(const std::string &input)
 	return result;
 }
 
-unsigned long hash(const std::string &string)
+unsigned hash(const std::string &string)
 {
-    unsigned long hash = 5381;
+    unsigned hash = 5381;
 
     for (int i = 0; i < string.size(); i++)
         hash = ((hash << 5) + hash) + string[i];
@@ -499,7 +499,7 @@ std::string stripEndlineForUnix(const std::string &in)
 	return out;
 }
 
-void forEachFile(std::string path, std::string type, void callback(const std::string &filename, int param), int param)
+void forEachFile(std::string path, std::string type, void callback(const std::string &filename, intptr_t param), intptr_t param)
 {
 	if (path.empty()) return;
 
