@@ -190,6 +190,10 @@ SET(AQUARIA_SRCS_UNUSED
     ${SRCDIR}/StarRenderer.cpp
 )
 
+IF(MACOSX)
+    SET(COCOA_SRCS "${BBGEDIR}/Cocoa.mm")
+ENDIF(MACOSX)
+
 # Bit Blot Game Engine sources...
 SET(BBGE_SRCS
     ${BBGEDIR}/glfont2/glfont2.cpp
@@ -270,6 +274,7 @@ SET(BBGE_SRCS
     ${BBGEDIR}/TTFFont.cpp
     ${BBGEDIR}/Vector.cpp
     ${BBGEDIR}/FmodOpenALBridge.cpp
+    ${COCOA_SRCS}
 )
 
 # Apparently not used at the moment. Listed here just for completeness.
