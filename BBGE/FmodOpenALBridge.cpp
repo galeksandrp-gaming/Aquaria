@@ -58,6 +58,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 namespace FMOD {
 
 #if _DEBUG
+    #ifdef _MSC_VER
+        // Not pretty, but it's only for debug anyway
+        #define __asm__ _CrtDbgBreak()
+        #define __volatile__(x)
+    #endif
     #define SANITY_CHECK_OPENAL_CALL() { \
         const ALenum err = alGetError(); \
         if (err != AL_NONE) { \

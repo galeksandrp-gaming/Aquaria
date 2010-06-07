@@ -1121,6 +1121,8 @@ std::string Core::adjustFilenameCase(const char *_buf)
 	#endif
 
 	return std::string(buf);
+#else
+	return std::string(_buf);
 #endif
 }
 
@@ -1758,13 +1760,17 @@ void Core::setSDLGLAttributes()
 #ifdef GLAPIENTRY
 #undef GLAPIENTRY
 #endif
+#ifdef _MSC_VER
+#define GLAPIENTRY APIENTRY
+#else
 #define GLAPIENTRY
+#endif
 #endif
 
 #if BBGE_BUILD_OPENGL_DYNAMIC
 #define GL_FUNC(ret,fn,params,call,rt) \
     extern "C" { \
-        static ret GLAPIENTRY (*p##fn) params = NULL; \
+        static ret (GLAPIENTRY *p##fn) params = NULL; \
         ret GLAPIENTRY fn params { rt p##fn call; } \
     }
 #include "OpenGLStubs.h"
@@ -2197,6 +2203,10 @@ bool Core::createWindow(int width, int height, int bits, bool fullscreen, std::s
 #endif
 }
 
+// No longer part of C/C++ standard
+#ifndef M_PI
+#define M_PI           3.14159265358979323846
+#endif
 
 static void
 bbgePerspective(double fovy, double aspect, double zNear, double zFar)
