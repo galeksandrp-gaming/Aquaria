@@ -1756,15 +1756,15 @@ void Core::setSDLGLAttributes()
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 }
 
-#if (defined (BBGE_BUILD_UNIX) || defined (BBGE_BUILD_WINDOWS))
+
 #ifdef GLAPIENTRY
 #undef GLAPIENTRY
 #endif
-#ifdef _MSC_VER
+
+#ifdef BBGE_BUILD_WINDOWS
 #define GLAPIENTRY APIENTRY
 #else
 #define GLAPIENTRY
-#endif
 #endif
 
 #if BBGE_BUILD_OPENGL_DYNAMIC
