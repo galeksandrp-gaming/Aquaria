@@ -4400,7 +4400,7 @@ Texture* Core::addTexture(const std::string &textureName)
 		texture = secondaryTexturePath + texture.substr(1, texture.size());
 		loadName = texture;
 	}
-	else if (!secondaryTexturePath.empty() && texture[0] != '.')
+	else if (!secondaryTexturePath.empty() && texture[0] != '.' && texture[0] != '/')
 	{
 		std::string t = texture;
 		std::string ln = loadName;
