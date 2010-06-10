@@ -2441,6 +2441,11 @@ void Game::loadEntityTypeList()
 	entityTypeList.clear();
 	std::ifstream in("scripts/entities/entities.txt");
 	std::string line;
+	if(!in)
+	{
+		core->messageBox("error", "Entity data not found! Aborting...");
+		exit(1);
+	}
 	while (std::getline(in, line))
 	{
 		std::string name, prevGfx;
