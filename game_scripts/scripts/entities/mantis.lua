@@ -125,7 +125,7 @@ function postInit(me)
 	n = getNaija()
 	
 	item = entity_getNearestEntity(me, "healthupgrade4")
-	//debugLog(string.format("item: %d", item))
+	--debugLog(string.format("item: %d", item))
 	
 	if not entity_isFlag(me, 0) then
 		entity_delete(me)
