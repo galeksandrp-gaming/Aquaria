@@ -3,6 +3,10 @@ PROJECT(Aquaria)
 
 INCLUDE(CheckCCompilerFlag)
 
+IF(NOT CMAKE_BUILD_TYPE)
+    SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "None Debug Release RelWithDebInfo MinSizeRel" FORCE)
+ENDIF(NOT CMAKE_BUILD_TYPE)
+
 IF(APPLE)
     SET(MACOSX TRUE)
 ENDIF(APPLE)
@@ -100,7 +104,7 @@ IF(UNIX)
 ENDIF(UNIX)
 
 IF(CMAKE_COMPILER_IS_GNUCC)
-    ADD_DEFINITIONS(-pipe -fsigned-char -g)
+    ADD_DEFINITIONS(-pipe -fsigned-char)
     #ADD_DEFINITIONS(-Wall)
 
     # See if -fno-stack-protector is available to us.
