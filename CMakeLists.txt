@@ -31,7 +31,10 @@ SET(LUADIR ${CMAKE_CURRENT_SOURCE_DIR}/Aquaria/lua-5.1.4)
 SET(LUASRCDIR ${LUADIR}/src)
 
 # Find SDL or use the included library if applicable
-find_package(SDL REQUIRED)
+OPTION(AQUARIA_INTERNAL_SDL "Always use included SDL library" FALSE)
+if(NOT AQUARIA_INTERNAL_SDL)
+    find_package(SDL)
+endif(NOT AQUARIA_INTERNAL_SDL)
 if (NOT SDL_FOUND)
     if(MACOSX)
         set(SDLDIR "${BBGEDIR}/SDL12")
@@ -55,7 +58,10 @@ if (NOT SDL_FOUND)
 endif (NOT SDL_FOUND)
 
 # Find OpenAL or use the included library if applicable
-find_package(OpenAL REQUIRED)
+OPTION(AQUARIA_INTERNAL_OPENAL "Always use included OpenAL library" FALSE)
+if(NOT AQUARIA_INTERNAL_OPENAL)
+    find_package(OpenAL)
+endif(NOT AQUARIA_INTERNAL_OPENAL)
 if (NOT OPENAL_FOUND)
     if(WIN32)
         if(MSVC)
