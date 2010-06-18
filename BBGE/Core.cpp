@@ -1008,8 +1008,14 @@ void Core::initPlatform(const std::string &filesystem)
 		if (chdir(filesystem.c_str()) == 0)
 			return;
 		else
-			debugLog("Failed to chdir to filesystem path" + filesystem);
+			debugLog("Failed to chdir to filesystem path " + filesystem);
 	}
+#ifdef BBGE_DATA_PREFIX
+	if (chdir(BBGE_DATA_PREFIX) == 0 && chdir(appName.c_str()) == 0)
+		return;
+	else
+		debugLog("Failed to chdir to filesystem path " BBGE_DATA_PREFIX + appName);
+#endif
 	char path[PATH_MAX];
 	// always a symlink to this process's binary, on modern Linux systems.
 	const ssize_t rc = readlink("/proc/self/exe", path, sizeof (path));
