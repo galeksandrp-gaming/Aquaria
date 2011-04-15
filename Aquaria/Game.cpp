@@ -6277,7 +6277,6 @@ void Game::applyState()
 	cameraFollowEntity = 0;
 
 	shuttingDownGameState = false;
-	optionsMenu = false;
 	core->particlesPaused = false;
 	bNatural = false;
 	songLineRender = 0;
@@ -7032,7 +7031,7 @@ void Game::bindInput()
 
 	/*
 	addAction(ACTION_MENULEFT,	KEY_LEFT);
-	addAction(ACTION_MENURIGHT, KEY_RIGHT);
+	addAction(ACTION_MENURIGHT,	KEY_RIGHT);
 	addAction(ACTION_MENUUP,	KEY_UP);
 	addAction(ACTION_MENUDOWN,	KEY_DOWN);
 
@@ -7042,16 +7041,15 @@ void Game::bindInput()
 	dsq->user.control.actionSet.importAction(this, "SwimDown",		ACTION_MENUDOWN);
 
 	addAction(ACTION_MENULEFT,	X360_DPAD_LEFT);
-	addAction(ACTION_MENURIGHT, X360_DPAD_RIGHT);
+	addAction(ACTION_MENURIGHT,	X360_DPAD_RIGHT);
 	addAction(ACTION_MENUUP,	X360_DPAD_UP);
 	addAction(ACTION_MENUDOWN,	X360_DPAD_DOWN);
 	*/
 
 	addAction(ACTION_MENULEFT,	JOY1_STICK_LEFT);
-	addAction(ACTION_MENURIGHT, JOY1_STICK_RIGHT);
+	addAction(ACTION_MENURIGHT,	JOY1_STICK_RIGHT);
 	addAction(ACTION_MENUUP,	JOY1_STICK_UP);
 	addAction(ACTION_MENUDOWN,	JOY1_STICK_DOWN);
-
 
 
 	if (avatar)
