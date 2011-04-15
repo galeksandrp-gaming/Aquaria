@@ -29,25 +29,24 @@ v = getVars()
 -- ================================================================================================
 
 v.fireDelay = 2
-v.moveTimer = 0
 
 -- ================================================================================================
 -- FUNCTIONS
 -- ================================================================================================
 
-function init(me)
-	setupBasicEntity(me, 
+function init()
+	setupBasicEntity(
 	"kingcrab-head",				-- texture
-	9,								-- health
+	20,								-- health
 	2,								-- manaballamount
 	2,								-- exp
 	1,								-- money
-	32,								-- collideRadius (for hitting entities + spells)
+	64,								-- collideRadius (for hitting entities + spells)
 	STATE_IDLE,						-- initState
 	256,							-- sprite width	
 	256,							-- sprite height
 	1,								-- particle "explosion" type, maps to particleEffects.txt -1 = none
-	1,								-- 0/1 hit other entities off/on (uses collideRadius)
+	0,								-- 0/1 hit other entities off/on (uses collideRadius)
 	4000							-- updateCull -1: disabled, default: 4000
 	)
 	
@@ -55,7 +54,7 @@ function init(me)
 		
 	-- entity_initPart(partName, partTexture, partPosition, partFlipH, partFlipV,
 	-- partOffsetInterpolateTo, partOffsetInterpolateTime
-	entity_initPart(me, 
+	entity_initPart(
 	"ClawLeft", 
 	"kingcrab-claw",
 	-64,
@@ -64,7 +63,7 @@ function init(me)
 	1, 
 	0)
 	
-	entity_initPart(me, 
+	entity_initPart(
 	"ClawRight", 
 	"kingcrab-claw",
 	64,
@@ -73,62 +72,50 @@ function init(me)
 	0,
 	0)
 	
-	entity_initPart(me, "LegsLeft", "kingcrab-leg", -64, 48, 0, 1, 0)
-	entity_initPart(me, "LegsRight", "kingcrab-leg", 64, 48, 0, 0, 0)
+	entity_initPart("LegsLeft", "kingcrab-leg", -64, 48, 0, 1, 0)
+	entity_initPart("LegsRight", "kingcrab-leg", 64, 48, 0, 0, 0)
 	
-	entity_partRotate(me, "ClawLeft", -32, 0.5, -1, 1, 1);
-	entity_partRotate(me, "ClawRight", 32, 0.5, -1, 1, 1);
+	entity_partRotate("ClawLeft", -32, 0.5, -1, 1, 1);
+	entity_partRotate("ClawRight", 32, 0.5, -1, 1, 1);
 
-	entity_partRotate(me, "LegsLeft", 16, 0.25, -1, 1, 1);
-	entity_partRotate(me, "LegsRight", -16, 0.25, -1, 1, 1);
+	entity_partRotate("LegsLeft", 16, 0.25, -1, 1, 1);
+	entity_partRotate("LegsRight", -16, 0.25, -1, 1, 1);
 
-	entity_scale(me, 0.5, 0.5)
-	
-	entity_setDeathParticleEffect(me, "Explode")
+	entity_scale(0.5, 0.5)
 	
 	
-	entity_clampToSurface(me)
+	entity_clampToSurface()
 end
 
-function update(me, dt)
-	if entity_touchAvatarDamage(me, 96, 1, 1000) then
-		-- do something maybe
-	end
-	entity_handleShotCollisions(me)
+function update(dt)
 	-- dt, pixelsPerSecond, climbHeight, outfromwall
-	entity_moveAlongSurface(me, dt, 100, 6, 40) --64 -- 54
-	entity_rotateToSurfaceNormal(me, 0.1)	
-	-- entity_rotateToSurfaceNormal(0)
-	v.moveTimer = v.moveTimer + dt
-	if v.moveTimer > 2 then
-		entity_switchSurfaceDirection(me)
-		v.moveTimer = 0
-	end
-	if not(entity_hasTarget(me)) then
-		entity_findTarget(me, 1200)
+	entity_moveAlongSurface(dt, 100, 6, 54) --64 (32)
+	entity_rotateToSurfaceNormal(0.1)
+	if not(entity_hasTarget()) then
+		entity_findTarget(1200)
 	else
+		if entity_isTargetInRange(64) then
+			entity_pushTarget(500)
+		end
 		if v.fireDelay > 0 then
 			v.fireDelay = v.fireDelay - dt
 			if v.fireDelay < 0 then
+				-- FIXME: obsolete function
 				-- dmg, mxspd, homing, numsegs, out
-				entity_fireAtTarget(me, "BlasterFire", 1, 400, 200, 3, 64)
-				v.fireDelay = 3
+				--entity_fireAtTarget(1, 1000, 200, 3, 64)
+				v.fireDelay = 5
 			end
 		end
 	end
 end
 
-function enterState(me)
-	if entity_getState(me)==STATE_IDLE then
+function enterState()
+	if entity_getState()==STATE_IDLE then
 	end
 end
 
-function exitState(me)
+function exitState()
 end
 
 function hitSurface()
-end
-
-function damage(me, attacker, bone, damageType, dmg)
-	return true
 end

@@ -29,7 +29,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Path.h"
 #include "Hair.h"
 
-class WaterFont;
 class ManaBall;
 class Path;
 
@@ -139,14 +138,6 @@ enum ObsCheck
 	OBSCHECK_4DIR	= 1,
 	OBSCHECK_DOWN	= 2,
 	OBSCHECK_8DIR	= 3
-};
-
-enum SayType
-{
-	SAY_NORMAL			= 0,
-	SAY_QUEUE			= 1,
-	SAY_INTERUPT		= 2,
-	SAY_MAX
 };
 
 class Shot;
@@ -260,8 +251,7 @@ public:
 	std::string name;
 	Vector vel;
 	InterpolatedVector vel2;
-	int convoRadius;
-	//int convoAvatarRadius;
+	int activationRadius;
 	void render();
 	void update(float dt);
 
@@ -457,8 +447,6 @@ public:
 	bool isInvincible();
 
 	InterpolatedVector maxSpeedLerp;
-	void setPauseInConversation(bool v);
-	bool isPauseInConversation();
 	Hair *hair;
 	void setGroupID(int gid);
 	int getGroupID();
@@ -539,15 +527,12 @@ public:
 	std::string naijaReaction;
 	Vector lookAtPoint;
 	Vector getLookAtPoint();
-	void say(const std::string &dialogue, SayType st=SAY_NORMAL);
-	bool isSaying();
 
 	void setv(EV ev, int v);
 	void setvf(EV ev, float v);
 	int getv(EV ev);
 	float getvf(EV ev);
 	bool isv(EV ev, int v);
-	Vector sayOffset, sayPosition;
 	void setIngredientData(const std::string &name);
 
 	void postUpdate(float dt);
@@ -586,13 +571,9 @@ protected:
 	virtual void onDieNormal() {}
 	virtual void onDieEaten() {}
 	IngredientData *ingredientData;
-	typedef std::queue<std::string> SayQueue;
-	SayQueue sayQueue;
 	int vs[EV_MAX];
 	void onEndOfLife();
-	void deathNotify(RenderObject *r);
 
-	WaterFont *saytext;
 	bool invincible;
 	PauseQuad *lanceGfx;
 	float lanceTimer;
@@ -627,7 +608,6 @@ protected:
 	virtual void onIdle() {}
 	int groupID;
 	virtual void onHeal(int type){}
-	bool pauseInConversation;
 	virtual void onDamage(DamageData &d){}
 	virtual void onHealthChange(float change){}
 	bool inCurrent;

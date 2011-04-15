@@ -26,16 +26,7 @@ struct lua_State;
 
 class Entity;
 class CollideEntity;
-class ScriptedParticleEffect;
-class ParticleData;
 class ScriptedEntity;
-
-struct ParticleEffectScript
-{
-	lua_State* lua;
-	std::string name;
-	int idx;
-};
 
 class Script
 {
@@ -85,43 +76,20 @@ class ScriptInterface
 {
 public:
 	void init();
-	void loadParticleEffectScripts();
 	void collectGarbage();
 	void shutdown();
-	void setCurrentParticleEffect(ScriptedParticleEffect *e);
-	bool setCurrentEntity (Entity *e);
-	void setCurrentParticleData(ParticleData *p);
-	ScriptedParticleEffect *getCurrentParticleEffect() { return currentParticleEffect; }
 
-
-	ParticleData *getCurrentParticleData() { return currentParticleData; }
 	Script *openScript(const std::string &file);
 	void closeScript(Script *script);
 
 	bool runScript(const std::string &file, const std::string &func);
 	bool runScriptNum(const std::string &file, const std::string &func, int num);
 
-	typedef std::map<std::string, ParticleEffectScript> ParticleEffectScripts;
-	ParticleEffectScripts particleEffectScripts;
-	ParticleEffectScript *getParticleEffectScriptByIdx(int idx);
-	//bool simpleConversation(const std::string &file);
-	bool noMoreConversationsThisRun;
-
-	//ScriptedEntity *se;
-	//CollideEntity *collideEntity;
-	//int currentEntityTarget;
-	//Entity *getCurrentEntity() { return currentEntity; }
 protected:
-
 	lua_State *createLuaVM();
 	void destroyLuaVM(lua_State *state);
 	lua_State *createLuaThread(const std::string &file);
 	int destroyLuaThread(const std::string &file, lua_State *thread);
 
 	lua_State *baseState;
-
-	ParticleData* currentParticleData;
-	ScriptedParticleEffect* currentParticleEffect;
-	Entity *currentEntity;
 };
-extern ScriptInterface *si;

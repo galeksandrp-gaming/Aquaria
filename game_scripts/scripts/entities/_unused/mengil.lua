@@ -20,21 +20,38 @@
 v = getVars()
 
 -- ================================================================================================
--- CHILD DRASK
+-- MENGRIL
 -- ================================================================================================
 
+running = false
+
 function init(me)
-	setupConversationEntity(me, "Drask")
-	entity_initSkeletal(me, "child", "childdrask")
-	entity_animate(me, "idle", -1)
+	setupConversationEntity(me, "Mengil")
+	entity_initSkeletal(me, "merman", "mengil")
+	entity_animate(me, "idle", LOOP_INF)
 	entity_scale(me, 0.6, 0.6)
 	entity_setActivation(me, AT_CLICK, 80, 256)
-	entity_setAffectedBySpells(me, 0)
+	if isMapName("TransitPort") then
+		entity_animate(me, "sitting", LOOP_INF)
+	end
+
 end
 
---entity_swimToNode(me, getNode("DRASKCAVEJUMP2"))
 function update(me, dt)
-	entity_touchAvatarDamage(me, 32, 0, 200)
+	if getStory() < 15 and not running then
+		running = true
+		naija = getEntity("Naija")
+		mengrilNode = getNode("GATE")
+		if entity_x(naija) > node_x(mengrilNode) then
+			-- the line must be drawn HERE!
+			wnd(1)
+			txt("Mengril: THOUH SHALT NOT PASS!")
+			wnd(0)
+			entity_swimToNode(naija, getNode("NAIJABACKOFF"))
+			entity_watchForPath(naija)			
+		end
+		running = false
+	end
 end
 
 function enterState(me)
@@ -44,36 +61,10 @@ function exitState(me)
 end
 
 function activate(me)
-	--entity_flipToEntity(me, getNaija())
-	entity_watchSwimToEntitySide(getNaija(), me)
-	if isFlag(FLAG_DRASK, 0) then		
+	if getStory() <15 then
 		wnd(1)
-		txt("Drask: ...")
-		txt("Drask: What are you staring at?")
-		wnd(0)
-		KM(KM_DRASK)
-		setFlag(FLAG_DRASK, 1)
-	elseif isFlag(FLAG_DRASK, 1) then
-		wnd(1)
-		txt("Drask: What?")
-		opt(
-			"Vedha", 1,
-			"Mithalas", hasKM(KM_MITHALAS),
-			"West Passage", hasKM(KM_WESTPASSAGE),
-			"Song Crystal", hasKM(KM_SONGCRYSTAL),
-			"Nevermind", 1
-			)
-		if isChoice(0) then
-			txt("Drask: Vedha scares me.")
-		elseif isChoice(1) then
-			txt("Drask: Please don't ask me about Mithalas...")
-		elseif isChoice(2) then
-			txt("Drask: Are you going to try and go there, Naija? But... you were warned... by Vedha...")
-			txt("Drask: One day, I hope that I'll be as brave as you!")
-		elseif isChoice(3) then
-			txt("Drask: Someone spoke to you from inside a Crystal?  This means that something more than memory is stored there...")
-			txt("Drask: Think about it... all that power...")
-		end
+		txt("Mengril: What? You expect me to have dialogue for the section of the game wherein you're not allowed to leave MainArea?")
+		txt("Mengril: Puppy Cocks!")
 		wnd(0)
 	end
 end

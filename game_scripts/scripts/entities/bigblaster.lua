@@ -123,7 +123,8 @@ function update(me, dt)
 			end
 			v.soundDelay = v.soundDelay - dt
 			if v.soundDelay < 0 then
-				entity_playSfx(me, "BlasterIdle")
+				-- Sound doesn't exist, so commenting out.  --achurch
+				--entity_playSfx(me, "BlasterIdle")
 				v.soundDelay = math.random(3)+1
 			end
 		end
@@ -221,11 +222,6 @@ function exitState(me)
 end
 
 function hitSurface(me)
-end
-
-function activate(me)
-	--msg1("Naija: Pet!")
-	entity_setBehaviorType(me, BT_ACTIVEPET)
 end
 
 function damage(me, attacker, bone, damageType, dmg)
