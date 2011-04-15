@@ -101,6 +101,7 @@ protected:
 	Quad *bg;
 	unsigned char *savedTexData;
 	bool mb;
+	Vector lastMousePosition; // See FIXME in WorldMapRender.cpp  --achurch
 };
 
 class PathRender : public RenderObject

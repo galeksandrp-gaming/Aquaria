@@ -58,6 +58,8 @@ namespace WorldMapRenderNamespace
 	Quad *lastVisQuad=0, *visQuad=0;
 	WorldMapTile *lastVisTile=0;
 
+	float xMin, yMin, xMax, yMax;
+
 	float zoomMin = 0.2;
 	float zoomMax = 1;
 	const float exteriorZoomMax = 1;
@@ -677,6 +679,8 @@ WorldMapRender::WorldMapRender() : RenderObject(), ActionMapper()
 	activeTile = 0;
 	activeQuad = 0;
 
+	lastMousePosition = core->mouse.position;
+
 	bg = 0;
 
 	savedTexData = 0;
@@ -1016,7 +1020,13 @@ void WorldMapRender::onUpdate(float dt)
 
 		if (core->mouse.buttons.middle || core->mouse.buttons.right)
 		{
-			internalOffset += core->mouse.change;
+			// FIXME: For some reason, not all mouse movement events reach
+			// this handler (at least under Linux/SDL), so when moving the
+			// mouse quickly, the world map scrolling tends to lag behind.
+			// We work around this by keeping our own "last position" vector
+			// and calculating the mouse movement from that.  --achurch
+			Vector mouseChange = core->mouse.position - lastMousePosition;
+			internalOffset += mouseChange / scale.x;
 		}
 
 		
@@ -1055,6 +1065,24 @@ void WorldMapRender::onUpdate(float dt)
 			}	
 		}
 
+		if (core->joystickEnabled)
+		{
+			if (isActing(ACTION_SECONDARY))
+			{
+				if (core->joystick.position.y >= 0.6f)
+					scale.interpolateTo(scale / 1.2f, 0.1f);
+				else if (core->joystick.position.y <= -0.6f)
+					scale.interpolateTo(scale * 1.2f, 0.1f);
+			}
+			else
+			{
+				// The negative multiplier is deliberate -- it makes the
+				// map scroll as though the joystick was controlling the
+				// cursor (which is fixed in the center of the screen).
+				internalOffset += core->joystick.position * (-400*dt / scale.x);
+			}
+		}
+
 		if (activeTile && activeTile->layer == 1)
 		{
 			zoomMax = interiorZoomMax;
@@ -1067,7 +1095,15 @@ void WorldMapRender::onUpdate(float dt)
 		float scrollAmount = 0.2;//0.25;
 
 		if (core->mouse.scrollWheelChange)
-			scale.interpolateTo(scale + Vector(scrollAmount, scrollAmount)*core->mouse.scrollWheelChange, 0.1);
+		{
+			Vector target = scale;
+			int changeLeft = core->mouse.scrollWheelChange;
+			for (; changeLeft > 0; changeLeft--)
+				target *= 1 + scrollAmount;
+			for (; changeLeft < 0; changeLeft++)
+				target /= 1 + scrollAmount;
+			scale.interpolateTo(target, 0.1);
+		}
 
 		if (scale.x < zoomMin)
 		{
@@ -1079,6 +1115,15 @@ void WorldMapRender::onUpdate(float dt)
 			scale.stop();
 			scale.x = scale.y = zoomMax;
 		}
+
+		if (-internalOffset.x < xMin - 300/scale.x)
+			internalOffset.x = -(xMin - 300/scale.x);
+		else if (-internalOffset.x > xMax + 300/scale.x)
+			internalOffset.x = -(xMax + 300/scale.x);
+		if (-internalOffset.y < yMin - 225/scale.x)
+			internalOffset.y = -(yMin - 225/scale.x);
+		else if (-internalOffset.y > yMax + 150/scale.x)
+			internalOffset.y = -(yMax + 150/scale.x);
 
 		if (dsq->isDeveloperKeys() || dsq->mod.isActive())
 		{
@@ -1165,6 +1210,8 @@ void WorldMapRender::onUpdate(float dt)
 		}
 #endif
 	}
+
+	lastMousePosition = core->mouse.position;
 }
 
 Vector WorldMapRender::getAvatarWorldMapPosition()
@@ -1298,6 +1345,27 @@ void WorldMapRender::toggle(bool turnON)
 				// Texture isn't updated while moving, so force an update here
 				clearVis(activeTile);
 				setVis(activeTile);
+			}
+		}
+
+		xMin = xMax = -internalOffset.x;
+		yMin = yMax = -internalOffset.y;
+		for (int i = 0; i < dsq->continuity.worldMap.getNumWorldMapTiles(); i++)
+		{
+			WorldMapTile *tile = dsq->continuity.worldMap.getWorldMapTile(i);
+			if (tile && (tile->revealed || tile->prerevealed) && tile->q)
+			{
+				Quad *q = tile->q;
+				const float width = q->getWidth() * q->scale.x;
+				const float height = q->getHeight() * q->scale.y;
+				if (xMin > tile->gridPos.x - width/2)
+					xMin = tile->gridPos.x - width/2;
+				if (xMax < tile->gridPos.x + width/2)
+					xMax = tile->gridPos.x + width/2;
+				if (yMin > tile->gridPos.y - height/2)
+					yMin = tile->gridPos.y - height/2;
+				if (yMax < tile->gridPos.y + height/2)
+					yMax = tile->gridPos.y + height/2;
 			}
 		}
 
