@@ -1499,10 +1499,9 @@ void Continuity::castSong(int num)
 				// or we'll get stuck in the spirit world afterward.
 				bool inWarp = false;
 				const Vector avatarPosition(dsq->game->avatar->position);
-				for (int i = 0; i < dsq->game->paths.size(); i++)
+				for (Path *p = dsq->game->getFirstPathOfType(PATH_WARP); p; p = p->nextOfType)
 				{
-					Path *p = dsq->game->paths[i];
-					if (p->pathType == PATH_WARP && p->isCoordinateInside(avatarPosition))
+					if (p->isCoordinateInside(avatarPosition))
 					{
 						inWarp = true;
 						break;
@@ -1547,10 +1546,10 @@ void Continuity::castSong(int num)
 			e->song((SongType)num);
 		}
 	}
-	for (int i = 0; i < dsq->game->paths.size(); i++)
+	for (int i = 0; i < dsq->game->getNumPaths(); i++)
 	{
 		//Entity *e = dsq->entities[i];
-		Path *p = dsq->game->paths[i];
+		Path *p = dsq->game->getPath(i);
 		if (p && !p->nodes.empty())
 		{
 			PathNode *n = &p->nodes[0];

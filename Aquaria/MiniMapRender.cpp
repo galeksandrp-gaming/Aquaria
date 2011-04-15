@@ -169,11 +169,9 @@ void MiniMapRender::onUpdate(float dt)
 		}
 		else
 		{
-			Path *p;
-			for (int i = 0; i < dsq->game->paths.size(); i++)
+			for (Path *p = dsq->game->getFirstPathOfType(PATH_RADARHIDE); p; p = p->nextOfType)
 			{
-				p = dsq->game->paths[i];
-				if (p->pathType == PATH_RADARHIDE && p->isCoordinateInside(dsq->game->avatar->position))
+				if (p->isCoordinateInside(dsq->game->avatar->position))
 				{
 					radarHide = true;
 					break;
@@ -442,11 +440,11 @@ void MiniMapRender::onRender()
 
 	if (!radarHide)
 	{
-		for (int i = 0; i < dsq->game->paths.size(); i++)
+		for (int i = 0; i < dsq->game->getNumPaths(); i++)
 		{
 			int extraSize;
 			extraSize = 0;
-			Path *p = dsq->game->paths[i];
+			Path *p = dsq->game->getPath(i);
 			if (!p->nodes.empty())
 			{
 				Vector pt(p->nodes[0].position);
