@@ -4879,7 +4879,7 @@ bool Game::loadSceneXML(std::string scene)
 			{
 				s->position = Vector(x+i*5,y+i*5);
 				s->startPos = s->position;
-				s->flockID = id;
+				s->addToFlock(id);
 				if (range != 0)
 					s->range = range;
 				if (maxSpeed != 0)
@@ -10357,6 +10357,8 @@ void Game::update(float dt)
 	{
 		(*j)->postUpdate(dt);
 	}
+
+	FlockEntity::updateFlockData();
 
 	updateCurrentVisuals(dt);
 	updateCursor(dt);
