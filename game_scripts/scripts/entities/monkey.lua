@@ -20,8 +20,6 @@
 v = getVars()
 
 
-dofile("scripts/entities/entityinclude.lua")
-
 local STATE_CLIMBUP		= 1000
 local STATE_WALLATTACK	= 1001
 local STATE_CLIMBDOWN	= 1002

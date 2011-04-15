@@ -23,8 +23,6 @@ v = getVars()
 -- N A U T I L U S  P R I M E!! 
 -- ================================================================================================
 
-dofile("scripts/entities/entityinclude.lua")
-
 local STATE_ATTACKPREP		= 1000
 local STATE_ATTACK			= 1001
 local STATE_STARTDELAY		= 1002

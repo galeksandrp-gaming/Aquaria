@@ -19,8 +19,6 @@
 
 v = getVars()
 
-dofile("scripts/entities/entityinclude.lua")
-
 -- entity specific
 local STATE_GOTOHOLE		= 1001
 local STATE_HIDE			= 1002

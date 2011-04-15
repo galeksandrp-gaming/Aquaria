@@ -23,7 +23,6 @@ v = getVars()
 -- H U G G Y
 -- ================================================================================================
 
-dofile("scripts/entities/entityinclude.lua")
 -- entity specific
 local STATE_ATTACHED		= 1000
 local STATE_FLYOFF			= 1001

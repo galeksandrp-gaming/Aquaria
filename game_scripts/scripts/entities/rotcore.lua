@@ -19,8 +19,6 @@
 
 v = getVars()
 
-dofile("scripts/entities/entityinclude.lua")
-
 local STATE_MOVING 	= 1001
 
 v.n = 0

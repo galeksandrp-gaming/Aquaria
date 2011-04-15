@@ -20,8 +20,6 @@
 v = getVars()
 
 -- generic egg
-dofile("scripts/entities/entityinclude.lua")
-
 local STATE_HATCH	= 1000
 
 function init()

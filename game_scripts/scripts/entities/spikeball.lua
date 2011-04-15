@@ -23,8 +23,6 @@ v = getVars()
 -- SPIKEBALL
 -- ================================================================================================
 
-dofile("scripts/entities/entityinclude.lua")
-
 -- entity specific
 local STATE_FIRE			= 1000
 local STATE_PULLBACK		= 1001

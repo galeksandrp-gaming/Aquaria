@@ -23,7 +23,6 @@ v = getVars()
 -- AGGRO HOPPER
 -- ================================================================================================
 
-dofile("scripts/entities/entityinclude.lua")
 -- specific
 local STATE_JUMP			= 1000
 local STATE_TRANSITION		= 1001

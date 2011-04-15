@@ -19,8 +19,6 @@
 
 v = getVars()
 
-dofile("scripts/entities/entityinclude.lua")
-
 local STATE_FIREPREP	= 1000
 local STATE_BEAMPREP	= 1001
 local STATE_BEAMFIRE	= 1002
