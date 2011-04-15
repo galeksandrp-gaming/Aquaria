@@ -3358,7 +3358,7 @@ void Core::pollEvents()
 				{
 					// toggle mouse grab with the magic hotkey.
 					grabInputOnReentry = (grabInputOnReentry)?0:-1;
-					setReentryInputGrab(0);
+					setReentryInputGrab(1);
 				}
 				else if (_hasFocus)
 				{
