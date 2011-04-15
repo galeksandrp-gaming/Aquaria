@@ -116,7 +116,7 @@ void ParticleEditor::update(float dt)
 
 	if (test)
 	{
-		test->offset.rotate2DRad(3.14f*dt);
+		test->offset.rotate2DRad(PI*dt);
 	}
 }
 

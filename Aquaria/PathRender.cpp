@@ -87,7 +87,7 @@ void PathRender::onRender()
 				{
 					glColor4f(0.5, 0.5, 1, 0.5);
 					glTranslatef(nd->position.x, nd->position.y, 0);
-					drawCircle(p->rect.getWidth()*0.5, 16);
+					drawCircle(p->rect.getWidth()*0.5f, 16);
 					glTranslatef(-nd->position.x, -nd->position.y, 0);
 				}
 			}
