@@ -78,6 +78,9 @@ end
 
 function postInit(me)
 	v.n = getNaija()
+	if isFlag(FLAG_PET_BLASTER, 1) then
+		entity_delete(me)
+	end
 end
 
 function update(me, dt)
