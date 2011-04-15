@@ -19,7 +19,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #include "../BBGE/MathFunctions.h"
-#include "../BBGE/glpng.h"
+#include "../ExternalLibs/glpng.h"
 #include "../BBGE/Gradient.h"
 #include "../BBGE/DebugFont.h"
 
@@ -27,6 +27,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DSQ.h"
 #include "Avatar.h"
 #include "GridRender.h"
+
+
+#ifdef AQUARIA_BUILD_SCENEEDITOR  // Through end of file
 
 
 #ifdef BBGE_BUILD_WINDOWS
@@ -534,7 +537,6 @@ void SceneEditor::openMainMenu()
 	addMainMenuItem("PARTICLE VIEWER                            ",	        120);
 	addMainMenuItem("ANIMATION EDITOR                           ",	        115);
 
-	bool md = false;
 	while (1 && !core->getKeyState(KEY_TAB))
 	{
 		core->main(FRAME_TIME);
@@ -2285,7 +2287,7 @@ void SceneEditor::generateLevel()
 		for (i = 0; i < rows.size(); i++)
 		{
 			int w = rows[i].x2 - rows[i].x1;
-			int h = scale * rows[i].rows;
+			//int h = scale * rows[i].rows;
 			int useY = rows[i].y;
 			if (rows[i].rows > 1)
 			{
@@ -2729,8 +2731,9 @@ void SceneEditor::selectEntityFromGroups()
 
 
 	//bool done = false;
-	bool mbrd = false, mbld=false;
-	bool ld=false, rd=false;
+	//bool mbrd = false;
+	bool mbld = false;
+	bool ld = false, rd = false;
 	ld = core->getKeyState(KEY_E);
 	while (!se_changedEntityType)
 	{
@@ -3852,3 +3855,5 @@ void SceneEditor::prevEntityType()
 	}
 }
 
+
+#endif  // AQUARIA_BUILD_SCENEEDITOR

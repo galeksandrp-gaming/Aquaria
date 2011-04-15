@@ -19,7 +19,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #include "../BBGE/DebugFont.h"
-#include "../BBGE/glpng.h"
+#include "../ExternalLibs/glpng.h"
 #include "../BBGE/AfterEffect.h"
 #include "../BBGE/ProfRender.h"
 
@@ -34,6 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "GridRender.h"
 #include "AutoMap.h"
 #include "PackRead.h"
+#include "Protect.h"
 
 #include "RoundedRect.h"
 #include "TTFFont.h"
@@ -129,7 +130,9 @@ float titTimer = 0;
 
 const int saveSlotPageSize = 4;
 int maxPages = 7;
+#ifdef AQUARIA_BUILD_CONSOLE
 const int MAX_CONSOLELINES	= 14;
+#endif
 
 DSQ *dsq = 0;
 
@@ -199,8 +202,6 @@ DSQ::DSQ(std::string fileSystem) : Core(fileSystem, LR_MAX, APPNAME, PARTICLE_AM
 		difficulty = DIFF_EASY;//DIFF_NORMAL;
 	*/
 
-	console = 0;
-
 	watchQuitFlag = false;
 	watchForQuit = false;
 
@@ -233,7 +234,10 @@ DSQ::DSQ(std::string fileSystem) : Core(fileSystem, LR_MAX, APPNAME, PARTICLE_AM
 	vars = &v;
 	v.load();
 
-	console = cmDebug = 0;
+#ifdef AQUARIA_BUILD_CONSOLE
+	console = 0;
+#endif
+	cmDebug = 0;
 	languagePack = "english";
 	saveSlotMode = SSM_NONE;
 	afterEffectManagerLayer = LR_AFTER_EFFECTS; // LR_AFTER_EFFECTS
@@ -288,10 +292,14 @@ DSQ::DSQ(std::string fileSystem) : Core(fileSystem, LR_MAX, APPNAME, PARTICLE_AM
 
 	addStateInstance(game = new Game);
 	addStateInstance(new GameOver);
+#ifdef AQUARIA_BUILD_SCENEEDITOR
 	addStateInstance(new AnimationEditor);
+#endif
 	addStateInstance(new Intro2);
 	addStateInstance(new BitBlotLogo);
+#ifdef AQUARIA_BUILD_SCENEEDITOR
 	addStateInstance(new ParticleEditor);
+#endif
 	addStateInstance(new Credits);
 	addStateInstance(new Intro);
 	addStateInstance(new Nag);
@@ -630,7 +638,7 @@ void DSQ::debugMenu()
 			*/
 
 
-			if (!dsq->game->sceneEditor.isOn())
+			if (!dsq->game->isSceneEditorActive())
 				dsq->game->togglePause(false);
 			if (!s.empty())
 			{
@@ -865,7 +873,11 @@ void DSQ::setVersionLabelText() {
 	{
 		//os << "gm" << VERSION_GM;
 	}
-	
+
+	#ifdef AQUARIA_CUSTOM_BUILD_ID
+	os << AQUARIA_CUSTOM_BUILD_ID;
+	#endif
+
 	std::string regName;
 
 	#if AQUARIA_NODRM
@@ -1223,6 +1235,7 @@ This build is not yet final, and as such there are a couple things lacking. They
 	debugLog("done");
 
 
+#ifdef AQUARIA_BUILD_CONSOLE
 	debugLog("Creating console");
 	console = new DebugFont;
 	//(&dsq->smallFont);
@@ -1236,6 +1249,9 @@ This build is not yet final, and as such there are a couple things lacking. They
 		console->setFontSize(6);
 	}
 	addRenderObject(console, LR_DEBUG_TEXT);
+#else
+	debugLog("NOT creating console (disabled in this build)");
+#endif
 
 	debugLog("1");
 
@@ -1250,7 +1266,7 @@ This build is not yet final, and as such there are a couple things lacking. They
 			cmDebug->followCamera = 1;
 			cmDebug->alpha = 0;
 			//cmDebug->setAlign(ALIGN_LEFT);
-			//console->setWidth(12);
+			//cmDebug->setWidth(12);
 			//cmDebug->setFontSize(18);
 			cmDebug->setFontSize(6);
 		}
@@ -1478,8 +1494,6 @@ This build is not yet final, and as such there are a couple things lacking. They
 	setTexturePointers();
 
 	loadBit();
-
-	int i = 0;
 
 	renderObjectLayers[LR_ENTITIES].startPass = -2;
 	renderObjectLayers[LR_ENTITIES].endPass = 5;
@@ -1986,6 +2000,7 @@ void DSQ::reloadDevice()
 	recreateBlackBars();
 }
 
+#ifdef AQUARIA_BUILD_CONSOLE
 void DSQ::toggleConsole()
 {
 	if (console)
@@ -2032,6 +2047,7 @@ void DSQ::debugLog(const std::string &s)
 	}
 	Core::debugLog(s);
 }
+#endif  // AQUARIA_BUILD_CONSOLE
 
 int DSQ::getEntityTypeIndexByName(std::string s)
 {
@@ -2217,9 +2233,10 @@ void DSQ::shutdown()
 	UNREFTEX(texCursorSing);
 	UNREFTEX(texCursorLook);
 
+#ifdef AQUARIA_BUILD_CONSOLE
 	removeRenderObject(console);
-
 	console = 0;
+#endif
 	removeRenderObject(cmDebug);
 	cmDebug = 0;
 	removeRenderObject(subtext);
@@ -3801,7 +3818,7 @@ void DSQ::onMouseInput()
 {
 	if (dsq->game && dsq->game->avatar)
 	{
-		if (!dsq->game->isInGameMenu() && !dsq->game->sceneEditor.isOn() && !dsq->game->isPaused())
+		if (!dsq->game->isInGameMenu() && !dsq->game->isSceneEditorActive() && !dsq->game->isPaused())
 		{
 			bool doIt = true;
 			Vector diff = core->mouse.position - core->center;
@@ -4048,7 +4065,9 @@ void DSQ::bindInput()
 	{
 #if defined(BBGE_BUILD_WINDOWS) || defined(BBGE_BUILD_UNIX)
 		addAction(MakeFunctionEvent(DSQ, instantQuit), KEY_Q, 1);
+#ifdef AQUARIA_BUILD_CONSOLE
 		addAction(MakeFunctionEvent(DSQ, toggleConsole), KEY_TILDE, 0);
+#endif
 #endif
 		addAction(MakeFunctionEvent(DSQ, toggleRenderCollisionShapes), KEY_CAPSLOCK, 0);
 	}
@@ -4931,7 +4950,6 @@ void DSQ::pauseCutscene(bool on)
 
 void DSQ::cutsceneEffects(bool on)
 {
-	const float t = 0.2;
 	if (cutscene_bg && cutscene_text && cutscene_text2)
 	{
 		if (canSkipCutscene())

@@ -2349,7 +2349,7 @@ void Entity::idle()
 	rotateToVec(Vector(0,-1),0.1);
 	vel.capLength2D(50);
 
-	setRiding(false);
+	setRiding(0);
 }
 
 void Entity::updateLance(float dt)
@@ -3069,7 +3069,6 @@ bool Entity::updateLocalWarpAreas(bool affectAvatar)
 	int i = 0;
 	for (i = 0; i < dsq->game->paths.size(); i++)
 	{
-		bool warp = false;
 		Path *p = dsq->game->paths[i];
 		if (!p->nodes.empty())
 		{
@@ -3309,7 +3308,8 @@ void Entity::render()
 		color = dsq->game->sceneColor * color * dsq->game->sceneColor2 * dsq->game->sceneColor3;
 	}
 
-	if (dsq->game->sceneEditor.isOn() && dsq->game->sceneEditor.editType == ET_ENTITIES)
+#ifdef AQUARIA_BUILD_SCENEEDITOR
+	if (dsq->game->isSceneEditorActive() && dsq->game->sceneEditor.editType == ET_ENTITIES)
 	{
 		if (dsq->game->sceneEditor.editingEntity == this)
 			renderBorderColor = Vector(1,1,1);
@@ -3318,6 +3318,8 @@ void Entity::render()
 		renderBorder = true;
 		//errorLog("!^!^$");
 	}
+#endif
+
 	// HACK: need to multiply base + etc
 	//skeletalSprite.shareColor(this->color);
 	skeletalSprite.multiplyColor(this->color);

@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "AutoMap.h"
 #include "GridRender.h"
 
-#include "../BBGE/tinyxml.h"
+#include "../ExternalLibs/tinyxml.h"
 
 #define MAX_EATS			8
 
@@ -897,8 +897,6 @@ void Continuity::loadIngredientData()
 	recipes.clear();
 
 	std::ifstream in("data/ingredients.txt");
-
-	int c = 0;
 
 	bool recipes = false;
 	while (std::getline(in, line))
@@ -2526,7 +2524,6 @@ void Continuity::loadFile(int slot)
 		e = e->NextSiblingElement("Flag");
 	}
 
-	/*
 	/*
 	if (debugEntityflags)
 	{

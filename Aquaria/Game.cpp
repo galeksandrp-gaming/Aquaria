@@ -1910,8 +1910,8 @@ void Game::fillGridFromQuad(Quad *q, ObsType obsType, bool trim)
 	{
 		std::vector<TileVector> obs, obsCopy;
 		TileVector tpos(q->position);
-		int tw = int((q->getWidth()*q->scale.x)/TILE_SIZE);
-		int th = int((q->getHeight()*q->scale.y)/TILE_SIZE);
+		//int tw = int((q->getWidth()*q->scale.x)/TILE_SIZE);
+		//int th = int((q->getHeight()*q->scale.y)/TILE_SIZE);
 		int w2 = int(q->getWidth()*q->scale.x)/2;
 		int h2 = int(q->getHeight()*q->scale.y)/2;
 		w2/=TILE_SIZE;
@@ -2066,7 +2066,6 @@ void Game::fillGridFromQuad(Quad *q, ObsType obsType, bool trim)
 			glGetFloatv(GL_MODELVIEW_MATRIX, m);
 			float x = m[12];
 			float y = m[13];
-			float z = m[14];
 
 			//dsq->game->setGrid(TileVector(tpos.x+(w2*TILE_SIZE)+(x/TILE_SIZE), tpos.y+(h2*TILE_SIZE)+(y/TILE_SIZE)), obsType);
 			TileVector tvec(tpos.x+w2+x, tpos.y+h2+y);
@@ -2139,7 +2138,7 @@ void Game::reconstructEntityGrid()
 
 void Game::reconstructGrid(bool force)
 {
-	if (!force && sceneEditor.isOn()) return;
+	if (!force && isSceneEditorActive()) return;
 
 	clearGrid();
 	int i = 0;
@@ -2253,7 +2252,7 @@ Vector Game::getWallNormal(Vector pos, int sampleArea, float *dist, int obs)
 	//Vector p = t.worldVector();
 	Vector avg;
 	int c = 0;
-	float maxLen = -1;
+	//float maxLen = -1;
 	std::vector<Vector> vs;
 	if (dist != NULL)
 		*dist = -1;
@@ -2463,6 +2462,7 @@ void Game::loadEntityTypeList()
 	}
 	in.close();
 
+#ifdef AQUARIA_BUILD_SCENEEDITOR
 	entityGroups.clear();
 
 	std::string fn = "scripts/entities/entitygroups.txt";
@@ -2502,6 +2502,7 @@ void Game::loadEntityTypeList()
 
 	game->sceneEditor.entityPageNum = 0;
 	//game->sceneEditor.page = entityGroups.begin();
+#endif
 }
 
 EntityClass *Game::getEntityClassForEntityType(const std::string &type)
@@ -2776,8 +2777,6 @@ void Game::generateCollisionMask(Quad *q, int overrideCollideRadius)
 		q->collisionMask.clear();
 		std::vector<TileVector> obs;
 		TileVector tpos(q->position);
-		int tw = int((q->getWidth()*q->scale.x)/TILE_SIZE);
-		int th = int((q->getHeight()*q->scale.y)/TILE_SIZE);
 		int w2 = int(q->getWidth()*q->scale.x)>>1;
 		int h2 = int(q->getHeight()*q->scale.y)>>1;
 		w2/=TILE_SIZE;
@@ -2938,7 +2937,7 @@ Path *Game::getPathAtCursor()
 
 Path *Game::getScriptedPathAtCursor(bool withAct)
 {
-	int range = 64;
+	//int range = 64;
 	int sz = paths.size();
 	for (int i = 0; i < sz; i++)
 	{
@@ -5123,7 +5122,7 @@ bool Game::loadSceneXML(std::string scene)
 					os << "read in rot as: " << rot;
 					debugLog(os.str());
 				}
-				Entity *e = dsq->game->createEntity(idx, 0, Vector(x,y), rot, true, "");
+				dsq->game->createEntity(idx, 0, Vector(x,y), rot, true, "");
 			}
 		}
 		if (entitiesNode->Attribute("f"))
@@ -5181,7 +5180,7 @@ bool Game::loadSceneXML(std::string scene)
 					}
 				}
 
-				Entity *e = dsq->game->createEntity(idx, id, Vector(x,y), rot, true, "", ET_ENEMY, BT_NORMAL, ng, groupID);
+				dsq->game->createEntity(idx, id, Vector(x,y), rot, true, "", ET_ENEMY, BT_NORMAL, ng, groupID);
 				// setting group ID
 			}
 		}
@@ -5192,10 +5191,9 @@ bool Game::loadSceneXML(std::string scene)
 			Entity::NodeGroups nodeGroups;
 			while (is >> idx)
 			{
-				int numNodeGroups = 0;
 				is >> x >> y >> rot >> groupID >> id;
 
-				Entity *e = dsq->game->createEntity(idx, id, Vector(x,y), rot, true, "", ET_ENEMY, BT_NORMAL, 0, groupID);
+				dsq->game->createEntity(idx, id, Vector(x,y), rot, true, "", ET_ENEMY, BT_NORMAL, 0, groupID);
 				// setting group ID
 			}
 		}
@@ -5210,10 +5208,7 @@ bool Game::loadSceneXML(std::string scene)
 				name="";
 				if (idx == -1)
 					is >> name;
-				int numNodeGroups = 0;
 				is >> x >> y >> rot >> groupID >> id;
-
-				Entity *e = 0;
 
 				if (!name.empty())
 					dsq->game->createEntity(name, id, Vector(x,y), rot, true, "", ET_ENEMY, BT_NORMAL, 0, groupID);
@@ -6103,9 +6098,11 @@ void Game::action(int id, int state)
 		}
 	}
 
+#ifdef AQUARIA_BUILD_SCENEEDITOR
 	if (id == ACTION_TOGGLESCENEEDITOR && !state)		toggleSceneEditor();
+#endif
 
-	if (dsq->isDeveloperKeys() || sceneEditor.isOn())
+	if (dsq->isDeveloperKeys() || isSceneEditorActive())
 	{
 		if (id == ACTION_TOGGLEGRID && !state)			toggleGridRender();
 	}
@@ -6518,7 +6515,7 @@ void Game::applyState()
 	li = 0;
 
 
-#ifdef BUILD_SCENEEDITOR
+#ifdef AQUARIA_BUILD_SCENEEDITOR
 	if (dsq->isDeveloperKeys() || dsq->mod.isActive())
 	{
 		sceneEditor.init();
@@ -6817,11 +6814,11 @@ void Game::applyState()
 	if (avatar->position.isZero() || avatar->position == Vector(1,1))
 	{
 		Path *p = 0;
-		if ((p = getPathByName("NAIJASTART")) || (p = getPathByName("NAIJASTART L")))
+		if ((p = getPathByName("NAIJASTART")) != 0 || (p = getPathByName("NAIJASTART L")) != 0)
 		{
 			avatar->position = p->nodes[0].position;
 		}
-		else if (p = getPathByName("NAIJASTART R"))
+		else if ((p = getPathByName("NAIJASTART R")) != 0)
 		{
 			avatar->position = p->nodes[0].position;
 			avatar->flipHorizontal();
@@ -6999,7 +6996,7 @@ void Game::bindInput()
 	//ActionMapper::clearCreatedEvents();
 
 
-#ifdef BUILD_SCENEEDITOR
+#ifdef AQUARIA_BUILD_SCENEEDITOR
 	if (dsq->isDeveloperKeys() || dsq->mod.isActive())
 	{
 		//addAction(MakeFunctionEvent(Game, toggleSceneEditor), KEY_TAB, 0);
@@ -7831,7 +7828,7 @@ void Game::onToggleHelpScreen()
 
 void Game::toggleHelpScreen(bool on, const std::string &label)
 {
-	if (dsq->game->sceneEditor.isOn()) return;
+	if (dsq->game->isSceneEditorActive()) return;
 
 	if (inHelpScreen == on) return;
 	if (core->getShiftState()) return;
@@ -8289,7 +8286,7 @@ Bone *Game::collideSkeletalVsCircle(Entity *skeletal, Entity *circle)
 
 Bone *Game::collideSkeletalVsLine(Entity *skeletal, Vector start, Vector end, int radius)
 {
-	int smallestDist = -1;
+	//int smallestDist = -1;
 	Bone *closest = 0;
 	for (int i = 0; i < skeletal->skeletalSprite.bones.size(); i++)
 	{
@@ -8337,7 +8334,6 @@ Bone *Game::collideSkeletalVsLine(Entity *skeletal, Vector start, Vector end, in
 
 bool Game::collideCircleVsLine(Entity *ent, Vector start, Vector end, int radius)
 {
-	int smallestDist = -1;
 	bool collision = false;
 	if (isTouchingLine(start, end, ent->position, radius+ent->collideRadius, &lastCollidePosition))
 	{
@@ -8348,7 +8344,6 @@ bool Game::collideCircleVsLine(Entity *ent, Vector start, Vector end, int radius
 
 bool Game::collideCircleVsLineAngle(Entity *ent, float angle, int startLen, int endLen, int radius, Vector basePos)
 {
-	int smallestDist = -1;
 	bool collision = false;
 	float rads = MathFunctions::toRadians(angle);
 	float sinv = sin(rads);
@@ -8437,7 +8432,6 @@ void Game::preLocalWarp(LocalWarpType localWarpType)
 
 	dsq->game->avatar->warpIn = !dsq->game->avatar->warpIn;
 	
-	float t = 0.2;
 	dsq->screenTransition->capture();
 	core->resetTimer();
 }
@@ -8697,11 +8691,13 @@ CollideData Game::collideCircleWithAllEntities(Vector pos, int r, Entity *me, in
 	return c;
 }
 
+#ifdef AQUARIA_BUILD_SCENEEDITOR
 void Game::toggleSceneEditor()
 {
 	if (!core->getAltState())
 		sceneEditor.toggle();
 }
+#endif
 
 void Game::toggleMiniMapRender()
 {
@@ -8991,7 +8987,6 @@ void Game::togglePetMenu(bool f)
 		toggleMainMenu(false);
 
 		bool hasPet = false;
-		bool didMenu = false;
 		for (int i = 0; i < petSlots.size(); i++)
 		{
 			petSlots[i]->alpha = 1;
@@ -9854,8 +9849,7 @@ void Game::updateCursor(float dt)
 		}
 	}
 
-	bool inMiniMap = (dsq->game->miniMapRender && (dsq->game->miniMapRender->getWorldPosition() - core->mouse.position).isLength2DIn(64));
-	if (sceneEditor.isOn() || dsq->game->isPaused() || (!avatar || !avatar->isInputEnabled()) ||
+	if (isSceneEditorActive() || dsq->game->isPaused() || (!avatar || !avatar->isInputEnabled()) ||
 		(dsq->game->miniMapRender && dsq->game->miniMapRender->isCursorIn())
 		)
 	{
@@ -10317,7 +10311,7 @@ void Game::update(float dt)
 	updateInGameMenu(dt);
 	if (avatar && grad && bg && bg2)
 	{
-		double d = avatar->position.y / double(40000.0);
+		//double d = avatar->position.y / double(40000.0);
 
 		/*
 		Vector top1(0.6, 0.8, 0.65);
@@ -10359,7 +10353,7 @@ void Game::update(float dt)
 
 	}
 
-#ifdef BUILD_SCENEEDITOR
+#ifdef AQUARIA_BUILD_SCENEEDITOR
 	{
 		sceneEditor.update(dt);
 	}
@@ -10497,7 +10491,7 @@ void Game::update(float dt)
 		dsq->cursorBlinker->alpha.interpolateTo(0, 0.1);
 	}
 
-	if (!this->sceneEditor.isOn())
+	if (!isSceneEditorActive())
 	{
 		if (!isPaused())
 			waterLevel.update(dt);
@@ -10894,9 +10888,11 @@ void Game::removeState()
 		avatar->endOfGameState();
 	}
 
+#ifdef AQUARIA_BUILD_SCENEEDITOR
 	debugLog("toggle sceneEditor");
 	if (sceneEditor.isOn())
 		sceneEditor.toggle(false);
+#endif
 
 	debugLog("gameSpeed");
 	dsq->gameSpeed.interpolateTo(1, 0);
@@ -10998,7 +10994,7 @@ void Game::removeState()
 	dsq->entities.clear();
 	avatar = 0;
 	//items.clear();
-#ifdef BUILD_SCENEEDITOR
+#ifdef AQUARIA_BUILD_SCENEEDITOR
 	sceneEditor.shutdown();
 #endif
 
@@ -11123,7 +11119,6 @@ bool Game::collideCircleWithGrid(Vector position, int r, Vector *fill)
 	tile.y = t.y;
 
 	float hsz = TILE_SIZE/2;
-	float hsz2 = TILE_SIZE/4;
 	int xrange=1,yrange=1;
 	xrange = (r/TILE_SIZE)+1;
 	yrange = (r/TILE_SIZE)+1;
@@ -11132,49 +11127,46 @@ bool Game::collideCircleWithGrid(Vector position, int r, Vector *fill)
 	{
 		for (int y = tile.y-yrange; y <= tile.y+yrange; y++)
 		{
-			int v = 0;
-			if (v = this->getGrid(TileVector(x, y)))
+			int v = this->getGrid(TileVector(x, y));
+			if (v != 0)
 			{
 				//if (tile.x == x && tile.y == y) return true;
-				if (v != 0)
+				TileVector t(x, y);
+				lastCollidePosition = t.worldVector();
+				//if (tile.x == x && tile.y == y) return true;
+				float rx = (x*TILE_SIZE)+TILE_SIZE/2;
+				float ry = (y*TILE_SIZE)+TILE_SIZE/2;
+
+				float rSqr;
+				lastCollideTileType = (ObsType)v;
+
+				rSqr = sqr(position.x - (rx+hsz)) + sqr(position.y - (ry+hsz));
+				if (rSqr < sqr(r))	return true;
+
+				rSqr = sqr(position.x - (rx-hsz)) + sqr(position.y - (ry+hsz));
+				if (rSqr < sqr(r))	return true;
+
+				rSqr = sqr(position.x - (rx-hsz)) + sqr(position.y - (ry-hsz));
+				if (rSqr < sqr(r))	return true;
+
+				rSqr = sqr(position.x - (rx+hsz)) + sqr(position.y - (ry-hsz));
+				if (rSqr < sqr(r))	return true;
+
+
+				if (position.x > rx-hsz && position.x < rx+hsz)
 				{
-					TileVector t(x, y);
-					lastCollidePosition = t.worldVector();
-					//if (tile.x == x && tile.y == y) return true;
-					float rx = (x*TILE_SIZE)+TILE_SIZE/2;
-					float ry = (y*TILE_SIZE)+TILE_SIZE/2;
-
-					float rSqr;
-					lastCollideTileType = (ObsType)v;
-
-					rSqr = sqr(position.x - (rx+hsz)) + sqr(position.y - (ry+hsz));
-					if (rSqr < sqr(r))	return true;
-
-					rSqr = sqr(position.x - (rx-hsz)) + sqr(position.y - (ry+hsz));
-					if (rSqr < sqr(r))	return true;
-
-					rSqr = sqr(position.x - (rx-hsz)) + sqr(position.y - (ry-hsz));
-					if (rSqr < sqr(r))	return true;
-
-					rSqr = sqr(position.x - (rx+hsz)) + sqr(position.y - (ry-hsz));
-					if (rSqr < sqr(r))	return true;
-
-
-					if (position.x > rx-hsz && position.x < rx+hsz)
+					if (fabs(ry - position.y) < r+hsz)
 					{
-						if (fabs(ry - position.y) < r+hsz)
-						{
-							return true;
-						}
+						return true;
 					}
+				}
 
 
-					if (position.y > ry-hsz && position.y < ry+hsz)
+				if (position.y > ry-hsz && position.y < ry+hsz)
+				{
+					if (fabs(rx - position.x) < r+hsz)
 					{
-						if (fabs(rx - position.x) < r+hsz)
-						{
-							return true;
-						}
+						return true;
 					}
 				}
 			}
@@ -11192,7 +11184,6 @@ bool Game::collideBoxWithGrid(Vector position, int hw, int hh)
 	tile.y = t.y;
 
 	float hsz = TILE_SIZE/2;
-	float hsz2 = TILE_SIZE/4;
 	int xrange=1,yrange=1;
 	xrange = (hw/TILE_SIZE)+1;
 	yrange = (hh/TILE_SIZE)+1;
@@ -11200,25 +11191,21 @@ bool Game::collideBoxWithGrid(Vector position, int hw, int hh)
 	{
 		for (int y = tile.y-yrange; y <= tile.y+yrange; y++)
 		{
-			int v = 0;
-			if (v = this->getGrid(TileVector(x, y)))
+			int v = this->getGrid(TileVector(x, y));
+			if (v == 1)
 			{
-				//if (tile.x == x && tile.y == y) return true;
-				if (v == 1)
+				if (tile.x == x && tile.y == y) return true;
+				float rx = (x*TILE_SIZE)+TILE_SIZE/2;
+				float ry = (y*TILE_SIZE)+TILE_SIZE/2;
+
+
+				if (isBoxIn(position, Vector(hw, hh), Vector(rx, ry), Vector(hsz, hsz)))
 				{
-					if (tile.x == x && tile.y == y) return true;
-					float rx = (x*TILE_SIZE)+TILE_SIZE/2;
-					float ry = (y*TILE_SIZE)+TILE_SIZE/2;
-
-
-					if (isBoxIn(position, Vector(hw, hh), Vector(rx, ry), Vector(hsz, hsz)))
-					{
-						return true;
-					}
-					if (isBoxIn(Vector(rx, ry), Vector(hsz, hsz), position, Vector(hw, hh)))
-					{
-						return true;
-					}
+					return true;
+				}
+				if (isBoxIn(Vector(rx, ry), Vector(hsz, hsz), position, Vector(hw, hh)))
+				{
+					return true;
 				}
 			}
 		}

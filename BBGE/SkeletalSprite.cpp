@@ -19,7 +19,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #include "SkeletalSprite.h"
-#include "tinyxml.h"
+#include "../ExternalLibs/tinyxml.h"
 #include "Core.h"
 #include "Particles.h"
 #include "MathFunctions.h"
@@ -115,7 +115,7 @@ Quad* Bone::addFrame(const std::string &gfx)
 
 void Bone::showFrame(int idx)
 {
-	float t = 0.1;
+	//float t = 0.1;
 	int c = 0;
 	for (Children::iterator i = children.begin(); i != children.end(); i++)
 	{
