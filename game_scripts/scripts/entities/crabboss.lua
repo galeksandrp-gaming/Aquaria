@@ -39,7 +39,7 @@ v.ahits = v.ahitsMax
 
 local LAYER_LEFTARM		= 1
 local LAYER_RIGHTARM	= 2
-local LAYER_LEGS		= 3
+local LAYER_LEGSANDBODY	= 3
 
 local STATE_BASIC		= 1000
 local STATE_STUNNED		= 1001

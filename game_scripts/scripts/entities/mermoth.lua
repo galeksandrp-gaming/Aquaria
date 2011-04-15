@@ -38,7 +38,7 @@ v.moveTimer = 0
 v.rotateOffset = 0
 v.angry = false
 v.enraged = false
-v.moving = 1
+v.moving = 0.2
 v.n = 0
 
 v.puffTimer = 0
@@ -299,11 +299,6 @@ function enterState(me)
 end
 
 function animationKey(me, key)
-	if entity_isState(me, STATE_RUNAWAY) and ((key > 3 and key < 5) or (key == 1)) then
-		v.moving = 1
-	else
-		v.moving = 0.2
-	end
 end
 
 function exitState(me)

@@ -46,11 +46,6 @@ function init(me)
 	bone_alpha(entity_getBoneByName(me, "Glow"), 0)
 end
 
-function setWarpSceneNode(scene, node)
-	v.sceneName = scene
-	v.nodeName = node
-end
-
 function enterState(me)
 	if entity_isState(me, STATE_IDLE) then
 		entity_animate(me, "idle", LOOP_INF)

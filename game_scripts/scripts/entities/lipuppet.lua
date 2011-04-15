@@ -22,13 +22,6 @@ v = getVars()
 v.n = 0
 v.bone_head = 0
 
-normal = 0
-angry = 1
-happy = 2
-hurt = 3
-laugh = 4
-surprise = 5
-
 local function doSkel(me, skel, skin)
 	entity_initSkeletal(me, skel, skin)	
 	v.bone_head = entity_getBoneByName(me, "Head")
@@ -92,11 +85,11 @@ end
 
 function msg(me, m)
 	if m == "smile" then
-		bone_showFrame(v.bone_head, happy)
+		bone_showFrame(v.bone_head, EXPRESSION_HAPPY)
 	elseif m == "normal" then
-		bone_showFrame(v.bone_head, 0)
+		bone_showFrame(v.bone_head, EXPRESSION_NORMAL)
 	elseif m == "surprise" then
-		bone_showFrame(v.bone_head, surprise)
+		bone_showFrame(v.bone_head, EXPRESSION_SURPRISE)
 	elseif m == "end" then
 		doSkel(me, "Li", "li-end")
 	end

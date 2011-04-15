@@ -25,7 +25,7 @@ local STATE_HIDE			= 1002
 local STATE_SHOW			= 1003
  
 v.chaseDelay = 0
-v.lastNode = 0
+v.lastHole = 0
 v.node = 0
 
 v.holeDelay = 0

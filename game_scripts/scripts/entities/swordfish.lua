@@ -187,8 +187,8 @@ function enterState(me)
 		local sw = x
 		x = -y
 		y = sw
-		local spd = 1000
-		entity_moveTowardsTarget(me, 1, 3000)
+		local spd = 3000
+		entity_moveTowardsTarget(me, 1, spd)
 		rotflip(me)
 	end
 end
