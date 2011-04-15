@@ -6642,6 +6642,11 @@ luaFunc(disableInput)
 	luaReturnInt(0);
 }
 
+luaFunc(getInputMode)
+{
+	luaReturnInt(dsq->inputMode);
+}
+
 luaFunc(quit)
 {
 #ifdef AQUARIA_DEMO
@@ -7331,6 +7336,8 @@ static const struct {
 
 	luaRegister(isInputEnabled),
 	luaRegister(disableInput),
+
+	luaRegister(getInputMode),
 
 	luaRegister(setMousePos),
 	luaRegister(getMousePos),
@@ -8680,8 +8687,11 @@ static const struct {
 	luaConstant(FORMUPGRADE_ENERGY2),
 	luaConstant(FORMUPGRADE_BEAST),
 
-
 	luaConstant(TILE_SIZE),
+
+	luaConstant(INPUT_MOUSE),
+	luaConstant(INPUT_JOYSTICK),
+	luaConstant(INPUT_KEYBOARD),
 };
 
 //============================================================================================
