@@ -4731,6 +4731,8 @@ Avatar::Avatar() : Entity(), ActionMapper()
 
 	addChild(&auraEmitter, PM_STATIC);
 
+	addChild(&auraLowEmitter, PM_STATIC);
+
 	addChild(&auraHitEmitter, PM_STATIC);
 	auraHitEmitter.load("AuraShieldHit");
 
@@ -6189,6 +6191,8 @@ void Avatar::activateAura(AuraType aura)
 	if (aura == AURA_SHIELD)
 	{
 		shieldPoints = maxShieldPoints;
+		if (auraLowEmitter.isRunning())
+			auraLowEmitter.stop();
 		auraEmitter.load("AuraShield");
 		auraEmitter.start();
 		if (dsq->loops.shield == BBGE_AUDIO_NOCHANNEL)
@@ -6246,11 +6250,11 @@ void Avatar::updateAura(float dt)
 		auraTimer -= dt;
 		if (auraTimer < 5 || shieldPoints < 2)
 		{
-			if (auraEmitter.name == "AURASHIELD")
+			if (auraEmitter.isRunning())
 			{
 				auraEmitter.stop();
-				auraEmitter.load("AuraShieldLow");
-				auraEmitter.start();
+				auraLowEmitter.load("AuraShieldLow");
+				auraLowEmitter.start();
 			}
 		}
 
@@ -6266,6 +6270,7 @@ void Avatar::stopAura()
 	auraTimer = 0;
 	activeAura = AURA_NONE;
 	auraEmitter.stop();
+	auraLowEmitter.stop();
 	if (dsq->loops.shield != BBGE_AUDIO_NOCHANNEL)
 	{
 		core->sound->fadeSfx(dsq->loops.shield, SFT_OUT, 1);
