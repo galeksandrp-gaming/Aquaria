@@ -226,6 +226,7 @@ void UserSettings::save()
 		TiXmlElement xml_data("Data");
 		{
 			xml_data.SetAttribute("savePage",			data.savePage);
+			xml_data.SetAttribute("saveSlot",			data.saveSlot);
 			xml_data.SetAttribute("lastSelectedMod",	data.lastSelectedMod);
 		}
 		doc.InsertEndChild(xml_data);
@@ -247,10 +248,13 @@ void readInt(TiXmlElement *xml, const std::string &elem, std::string att, int *t
 		TiXmlElement *xml2 = xml->FirstChildElement(elem);
 		if (xml2)
 		{
-			const char *c = xml2->Attribute(att)->c_str();
-			if (c)
-			{
-				*toChange = atoi(c);
+			const std::string *s = xml2->Attribute(att);
+			if (s) {
+				const char *c = s->c_str();
+				if (c)
+				{
+					*toChange = atoi(c);
+				}
 			}
 		}
 	}
@@ -260,10 +264,13 @@ void readIntAtt(TiXmlElement *xml, std::string att, int *toChange)
 {
 	if (xml)
 	{
-		const char *c = xml->Attribute(att)->c_str();
-		if (c)
-		{
-			*toChange = atoi(c);
+		const std::string *s = xml->Attribute(att);
+		if (s) {
+			const char *c = s->c_str();
+			if (c)
+			{
+				*toChange = atoi(c);
+			}
 		}
 	}
 }
@@ -453,11 +460,8 @@ void UserSettings::load(bool doApply, const std::string &overrideFile)
 	if (xml_data)
 	{
 		readIntAtt(xml_data, "savePage", &data.savePage);
+		readIntAtt(xml_data, "saveSlot", &data.saveSlot);
 		readIntAtt(xml_data, "lastSelectedMod", &data.lastSelectedMod);
-		/*
-		data.savePage = atoi(xml_data->Attribute("savePage"));
-		data.lastSelectedMod = atoi(xml_data->Attribute("lastSelectedMod"));
-		*/
 	}
 
 	//clearInputCodeMap();
