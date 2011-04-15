@@ -5303,6 +5303,12 @@ bool Game::loadSceneXML(std::string scene)
 	}
 	this->reconstructGrid(true);
 	rebuildElementUpdateList();
+	setElementLayerFlags();
+
+	// HACK: Don't try to optimize the barrier layer in Mithalas Cathedral
+	// since elements are turned off dynamically.
+	if (nocasecmp(scene, "cathedral02") == 0)
+		dsq->getRenderObjectLayer(LR_ELEMENTS3)->setOptimizeStatic(false);
 
 	findMaxCameraValues();
 
@@ -5823,7 +5829,7 @@ void Game::colorTest()
 				float fract = float(dist.getLength2D())/float(quadLights[i].dist);
 				float amb = fract;
 				fract = 1.0f - fract;
-				e->color = sceneColor*amb + q->color*fract;
+				e->color = Vector(1,1,1)*amb + q->color*fract;
 			}
 			else
 			{
@@ -6071,6 +6077,19 @@ void Game::rebuildElementUpdateList()
 				elementUpdateList.push_back(e);
 			}
 		}
+	}
+}
+
+void Game::setElementLayerFlags()
+{
+	for (int i = LR_ELEMENTS1; i <= LR_ELEMENTS16; i++)
+	{
+		// FIXME: Background SchoolFish get added to ELEMENTS11, so
+		// we can't optimize that layer.  (Maybe create a new layer?)
+		if (i == LR_ELEMENTS11)
+			continue;
+
+		dsq->getRenderObjectLayer(i)->setOptimizeStatic(!isSceneEditorActive() && dsq->user.video.displaylists);
 	}
 }
 
@@ -8758,7 +8777,10 @@ CollideData Game::collideCircleWithAllEntities(Vector pos, float r, Entity *me, 
 void Game::toggleSceneEditor()
 {
 	if (!core->getAltState())
+	{
 		sceneEditor.toggle();
+		setElementLayerFlags();
+	}
 }
 #endif
 
@@ -10367,19 +10389,14 @@ void Game::update(float dt)
 	sceneColor.update(dt);
 	sceneColor2.update(dt);
 	sceneColor3.update(dt);
+	dsq->sceneColorOverlay->color = sceneColor * sceneColor2 * sceneColor3;
 	if (bg)
 	{
-		bg->color = sceneColor * sceneColor2 * sceneColor3;
 		setParallaxTextureCoordinates(bg, 0.3);
 	}
 	if (bg2)
 	{
-		bg2->color = sceneColor * sceneColor2 * sceneColor3;
 		setParallaxTextureCoordinates(bg2, 0.1);
-	}
-	if (grad)
-	{
-		grad->color = sceneColor*sceneColor2*sceneColor3;
 	}
 	updateInGameMenu(dt);
 	if (avatar && grad && bg && bg2)
