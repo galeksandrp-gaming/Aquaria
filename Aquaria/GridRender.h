@@ -68,7 +68,6 @@ class WorldMapRender : public RenderObject, public ActionMapper
 {
 public:
 	WorldMapRender();
-	void transferData();
 	void destroy();
 	void toggle(bool on);
 	bool isOn();
@@ -92,11 +91,13 @@ protected:
 	float inputDelay;
 	BitmapText *areaLabel, *areaLabel2, *areaLabel3;
 	WorldMapTile *originalActiveTile;
-	void setVis(Quad *q);
+	void setVis(WorldMapTile *tile);
+	void clearVis(WorldMapTile *tile);
 	bool on;
 	void onUpdate(float dt);
 	void onRender();
 	Quad *bg;
+	unsigned char *savedTexData;
 	bool mb;
 };
 

@@ -32,8 +32,6 @@ namespace WorldMapRenderNamespace
 {
 	const float WORLDMAP_UNDERLAY_ALPHA = 0.8;
 
-	const int SUBDIV			= 64;
-
 	float baseMapSegAlpha		= 0.4;
 	float visibleMapSegAlpha	= 0.8;
 
@@ -42,8 +40,7 @@ namespace WorldMapRenderNamespace
 	enum VisMethod
 	{
 		VIS_VERTEX		= 0,
-		VIS_PARTICLES	= 1,
-		VIS_COPY		= 2
+		VIS_WRITE		= 1
 	};
 
 	VisMethod visMethod = VIS_VERTEX;
@@ -481,9 +478,123 @@ void WorldMapRender::setProperTileColor(WorldMapTile *tile)
 	}
 }
 
-void WorldMapRender::setVis(Quad *q)
+#ifdef AQUARIA_BUILD_MAPVIS
+
+static void tileDataToVis(WorldMapTile *tile, Vector **vis)
 {
-	if (!q) return;
+	const unsigned char *data = tile->getData();
+
+	if (data != 0)
+	{
+		const unsigned int rowSize = MAPVIS_SUBDIV/8;
+		for (unsigned int y = 0; y < MAPVIS_SUBDIV; y++, data += rowSize)
+		{
+			for (unsigned int x = 0; x < MAPVIS_SUBDIV; x += 8)
+			{
+				unsigned char dataByte = data[x/8];
+				for (unsigned int x2 = 0; x2 < 8; x2++)
+				{
+					vis[x+x2][y].z = (dataByte & (1 << x2)) ? visibleMapSegAlpha : baseMapSegAlpha;
+				}
+			}
+		}
+	}
+	else
+	{
+		for (int x = 0; x < MAPVIS_SUBDIV; x++)
+		{
+			for (int y = 0; y < MAPVIS_SUBDIV; y++)
+			{
+				vis[x][y].z = baseMapSegAlpha;
+			}
+		}
+		return;
+	}
+}
+
+// Returns a copy of the original texture data.
+static unsigned char *tileDataToAlpha(WorldMapTile *tile)
+{
+	const unsigned char *data = tile->getData();
+	const unsigned int ab = int(baseMapSegAlpha * (1<<8) + 0.5f);
+	const unsigned int av = int(visibleMapSegAlpha * (1<<8) + 0.5f);
+
+	const unsigned int texWidth = tile->q->texture->width;
+	const unsigned int texHeight = tile->q->texture->height;
+	if (texWidth % MAPVIS_SUBDIV != 0 || texHeight % MAPVIS_SUBDIV != 0)
+	{
+		std::ostringstream os;
+		os << "Texture size " << texWidth << "x" << texHeight
+		   << " not a multiple of MAPVIS_SUBDIV " << MAPVIS_SUBDIV
+		   << ", can't edit";
+		debugLog(os.str());
+		return 0;
+	}
+	const unsigned int scaleX = texWidth / MAPVIS_SUBDIV;
+	const unsigned int scaleY = texHeight / MAPVIS_SUBDIV;
+
+	unsigned char *savedTexData = new unsigned char[texWidth * texHeight * 4];
+	tile->q->texture->read(0, 0, texWidth, texHeight, savedTexData);
+
+	unsigned char *texData = new unsigned char[texWidth * texHeight * 4];
+	memcpy(texData, savedTexData, texWidth * texHeight * 4);
+
+	if (data != 0)
+	{
+		const unsigned int rowSize = MAPVIS_SUBDIV/8;
+		for (unsigned int y = 0; y < MAPVIS_SUBDIV; y++, data += rowSize)
+		{
+			unsigned char *texOut = &texData[(y*scaleY) * texWidth * 4];
+			for (unsigned int x = 0; x < MAPVIS_SUBDIV; x += 8)
+			{
+				unsigned char dataByte = data[x/8];
+				for (unsigned int x2 = 0; x2 < 8; x2++, texOut += scaleX*4)
+				{
+					const bool visited = (dataByte & (1 << x2)) != 0;
+					const unsigned int alphaMod = visited ? av : ab;
+					for (unsigned int pixelY = 0; pixelY < scaleY; pixelY++)
+					{
+						unsigned char *ptr = &texOut[pixelY * texWidth * 4];
+						for (unsigned int pixelX = 0; pixelX < scaleX; pixelX++, ptr += 4)
+						{
+							if (ptr[3] == 0)
+								continue;
+							ptr[3] = (ptr[3] * alphaMod + 128) >> 8;
+						}
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		unsigned char *texOut = texData;
+		for (unsigned int y = 0; y < texHeight; y++)
+		{
+			for (unsigned int x = 0; x < texWidth; x++, texOut += 4)
+			{
+				texOut[3] = (texOut[3] * ab + 128) >> 8;
+			}
+		}
+	}
+
+	tile->q->texture->write(0, 0, texWidth, texHeight, texData);
+	delete[] texData;
+
+	return savedTexData;
+}
+
+static void resetTileAlpha(WorldMapTile *tile, const unsigned char *savedTexData)
+{
+	tile->q->texture->write(0, 0, tile->q->texture->width, tile->q->texture->height, savedTexData);
+}
+
+#endif  // AQUARIA_BUILD_MAPVIS
+
+
+void WorldMapRender::setVis(WorldMapTile *tile)
+{
+	if (!tile) return;
 #ifdef AQUARIA_BUILD_MAPVIS
 	/*
 	if (lastVisQuad)
@@ -492,48 +603,46 @@ void WorldMapRender::setVis(Quad *q)
 		lastVisQuad->color = Vector(0.7, 0.8, 1);
 	}
 	*/
-	if (lastVisTile)
-	{
-		lastVisTile->vis = 0;
-	}
 
-	q->color = Vector(1,1,1);
-	q->alphaMod = 1;
+	tile->q->color = Vector(1,1,1);
+	tile->q->alphaMod = 1;
 	
-	WorldMapTile *tile=0;
-	int num = dsq->continuity.worldMap.getNumWorldMapTiles();
-	for (int i = 0; i < num; i++)
-	{
-		WorldMapTile *t = dsq->continuity.worldMap.getWorldMapTile(i);
-		if (t && t->q == q)
-		{
-			tile = t;
-			break;
-		}
-	}
-
-	if (tile == 0)	return;
-
 	if (visMethod == VIS_VERTEX)
 	{
-		q->setSegs(SUBDIV, SUBDIV, 0, 0, 0, 0, 2.0, 1);
-		tile->vis = q->getDrawGrid();
-		tile->visSize = SUBDIV;
-		tile->listToVis(baseMapSegAlpha, visibleMapSegAlpha);
+		tile->q->setSegs(MAPVIS_SUBDIV, MAPVIS_SUBDIV, 0, 0, 0, 0, 2.0, 1);
+		tileDataToVis(tile, tile->q->getDrawGrid());
 	}
-	else if (visMethod == VIS_PARTICLES)
+	else if (visMethod == VIS_WRITE)
 	{
-
-	}
-	else if (visMethod == VIS_COPY)
-	{
-
+		savedTexData = tileDataToAlpha(tile);
 	}
 
-	lastVisQuad = q;
+	lastVisQuad = tile->q;
 	lastVisTile = tile;
 #endif
 }
+
+void WorldMapRender::clearVis(WorldMapTile *tile)
+{
+	if (!tile) return;
+#ifdef AQUARIA_BUILD_MAPVIS
+	if (visMethod == VIS_VERTEX)
+	{
+		if (tile->q)
+			tile->q->deleteGrid();
+	}
+	else if (visMethod == VIS_WRITE)
+	{
+		if (savedTexData)
+		{
+			resetTileAlpha(tile, savedTexData);
+			delete[] savedTexData;
+			savedTexData = 0;
+		}
+	}
+#endif
+}
+
 
 WorldMapRender::WorldMapRender() : RenderObject(), ActionMapper()
 {
@@ -564,6 +673,8 @@ WorldMapRender::WorldMapRender() : RenderObject(), ActionMapper()
 	activeQuad = 0;
 
 	bg = 0;
+
+	savedTexData = 0;
 
 	/*
 	bg = new Quad("", Vector(400,300));
@@ -620,12 +731,9 @@ WorldMapRender::WorldMapRender() : RenderObject(), ActionMapper()
 			if (tile == activeTile)
 				activeQuad = q;
 
-			tile->vis = 0;
-			
-
 			if (activeQuad == q)
 			{
-				setVis(q);
+				setVis(tile);
 			}
 		
 			addChild(q, PM_POINTER);
@@ -742,23 +850,11 @@ void WorldMapRender::bindInput()
 	dsq->user.control.actionSet.importAction(this, "SwimDown",			ACTION_SWIMDOWN);
 }
 
-void WorldMapRender::transferData()
-{
-#ifdef AQUARIA_BUILD_MAPVIS
-	for (int i = 0; i < dsq->continuity.worldMap.getNumWorldMapTiles(); i++)
-	{
-		WorldMapTile *tile = dsq->continuity.worldMap.getWorldMapTile(i);
-		if (tile)
-		{
-			tile->visToList();
-		}
-	}
-#endif
-}
-
 void WorldMapRender::destroy()
 {
+	clearVis(activeTile);
 	RenderObject::destroy();
+	delete[] savedTexData;
 }
 
 bool WorldMapRender::isCursorOffHud()
@@ -866,10 +962,7 @@ void WorldMapRender::onUpdate(float dt)
 						{
 							if ((activeTile != selectedTile) && selectedTile->q)
 							{
-								transferData();
-
-
-								activeTile->q->deleteGrid();
+								clearVis(activeTile);
 
 								activeTile = selectedTile;
 								activeQuad = activeTile->q;
@@ -889,7 +982,7 @@ void WorldMapRender::onUpdate(float dt)
 									setProperTileColor(tile);
 								}
 
-								setVis(selectedTile->q);
+								setVis(selectedTile);
 							}
 
 							mb = false;
@@ -1026,54 +1119,31 @@ void WorldMapRender::onUpdate(float dt)
 	else
 	{
 #ifdef AQUARIA_BUILD_MAPVIS
-		if (dsq->game->avatar)
+		if (dsq->game->avatar && activeTile)
 		{
-			if (activeQuad && activeTile)
+			Vector p = dsq->game->avatar->position;
+			p.x /= dsq->game->cameraMax.x;
+			p.y /= dsq->game->cameraMax.y;
+			int x = int(p.x * MAPVIS_SUBDIV);
+			int y = int(p.y * MAPVIS_SUBDIV);
+			activeTile->markVisited(x-1, y-1, x+1, y+1);
+			if (activeQuad)
 			{
 				if (visMethod == VIS_VERTEX)
 				{
-					Vector p = dsq->game->avatar->position;
-					p.x = p.x / dsq->game->cameraMax.x;
-					p.y = p.y / dsq->game->cameraMax.y;
-					p.x = p.x * SUBDIV;
-					p.y = p.y * SUBDIV;
-					p.x = int(p.x);
-					p.y = int(p.y);
-					activeQuad->setDrawGridAlpha(p.x, p.y, visibleMapSegAlpha);
-					activeQuad->setDrawGridAlpha(p.x-1, p.y, visibleMapSegAlpha);
-					activeQuad->setDrawGridAlpha(p.x-1, p.y-1, visibleMapSegAlpha);
-					activeQuad->setDrawGridAlpha(p.x-1, p.y+1, visibleMapSegAlpha);
-					activeQuad->setDrawGridAlpha(p.x+1, p.y, visibleMapSegAlpha);
-					activeQuad->setDrawGridAlpha(p.x+1, p.y-1, visibleMapSegAlpha);
-					activeQuad->setDrawGridAlpha(p.x+1, p.y+1, visibleMapSegAlpha);
-					activeQuad->setDrawGridAlpha(p.x, p.y-1, visibleMapSegAlpha);
-					activeQuad->setDrawGridAlpha(p.x, p.y+1, visibleMapSegAlpha);
+					activeQuad->setDrawGridAlpha(x, y, visibleMapSegAlpha);
+					activeQuad->setDrawGridAlpha(x-1, y, visibleMapSegAlpha);
+					activeQuad->setDrawGridAlpha(x-1, y-1, visibleMapSegAlpha);
+					activeQuad->setDrawGridAlpha(x-1, y+1, visibleMapSegAlpha);
+					activeQuad->setDrawGridAlpha(x+1, y, visibleMapSegAlpha);
+					activeQuad->setDrawGridAlpha(x+1, y-1, visibleMapSegAlpha);
+					activeQuad->setDrawGridAlpha(x+1, y+1, visibleMapSegAlpha);
+					activeQuad->setDrawGridAlpha(x, y-1, visibleMapSegAlpha);
+					activeQuad->setDrawGridAlpha(x, y+1, visibleMapSegAlpha);
 				}
-				else if (visMethod == VIS_PARTICLES)
+				else if (visMethod == VIS_WRITE)
 				{
-					this->getAvatarWorldMapPosition();
-				}
-				else if (visMethod == VIS_COPY)
-				{
-					Vector p = dsq->game->avatar->position;
-					p.x = p.x / dsq->game->cameraMax.x;
-					p.y = p.y / dsq->game->cameraMax.y;
-					//Vector p = getWorldToTile(activeTile, dsq->game->avatar->position, false, false);
-					unsigned char *pixels = (unsigned char*)malloc(sizeof(unsigned char)*32*32*4);
-					unsigned int c = 0;
-					for (int x = 0; x < 32; x++)
-					{
-						for (int y = 0; y < 32; y++)
-						{
-							pixels[c] = 1;
-							pixels[c+1] = 0;
-							pixels[c+2] = 1;
-							pixels[c+3] = 1;
-							c += 4;
-						}
-					}
-					activeQuad->texture->write(p.x, p.y, 32, 32, pixels);
-					free(pixels);
+					// Do nothing -- we regenerate the tile on opening the map.
 				}
 			}
 		}
@@ -1207,6 +1277,12 @@ void WorldMapRender::toggle(bool turnON)
 				scale = Vector(1.5,1.5);
 			else
 				scale = Vector(1,1);
+			if (visMethod == VIS_WRITE)
+			{
+				// Texture isn't updated while moving, so force an update here
+				clearVis(activeTile);
+				setVis(activeTile);
+			}
 		}
 
 		if (bg)
@@ -1246,8 +1322,8 @@ void WorldMapRender::toggle(bool turnON)
 		{
 			if (activeTile != originalActiveTile)
 			{
-				activeTile->q->deleteGrid();
-				setVis(originalActiveTile->q);
+				clearVis(activeTile);
+				setVis(originalActiveTile);
 				activeTile = originalActiveTile;
 				activeQuad = activeTile->q;
 			}
@@ -1262,7 +1338,7 @@ void WorldMapRender::toggle(bool turnON)
 
 		// again to set the correct color
 		// lame, don't do that
-		//setVis(activeTile->q);
+		//setVis(activeTile);
 
 		// just set the color
 		if (activeTile)
@@ -1272,7 +1348,7 @@ void WorldMapRender::toggle(bool turnON)
 		}
 
 
-		//setVis(activeQuad);
+		//setVis(activeTile);
 		/*
 		for (int i = 0; i < LR_MENU; i++)
 		{

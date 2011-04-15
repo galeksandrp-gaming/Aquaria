@@ -37,6 +37,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define AQUARIA_BUILD_MAPVIS
 
+// Define this to save map visited data in a base64-encoded raw format.
+// This can take much less space than the standard text format (as little
+// as 10%), but WILL BE INCOMPATIBLE with previous builds of Aquaria --
+// the visited data will be lost if the file is loaded into such a build.
+// (Current builds will load either format regardless of whether or not
+// this is defined.)
+//#define AQUARIA_SAVE_MAPVIS_RAW
+
 class Game;
 class DebugFont;
 class ProfRender;
@@ -540,28 +548,29 @@ public:
 };
 */
 
+#define MAPVIS_SUBDIV 64
+
 struct WorldMapTile
 {
 	WorldMapTile();
+	~WorldMapTile();
+
+	void markVisited(int left, int top, int right, int bottom);
+	void dataToString(std::ostringstream &os);
+	void stringToData(std::istringstream &is);
+	const unsigned char *getData() const {return data;}
 
 	std::string name;
 	Vector gridPos;
 	float scale, scale2;
 	bool revealed, prerevealed;
 	int layer, index;
-
 	int stringIndex;
 
-	void visToList();
-	void listToVis(float ab, float av);
-	void clearList();
-
-	std::vector<IntPair> list;
-
-
-	int visSize;
-	Vector ** vis;
 	Quad *q;
+
+protected:
+	unsigned char *data;
 };
 
 struct WorldMap
