@@ -7040,10 +7040,10 @@ void Game::bindInput()
 	dsq->user.control.actionSet.importAction(this, "SwimUp",		ACTION_MENUUP);
 	dsq->user.control.actionSet.importAction(this, "SwimDown",		ACTION_MENUDOWN);
 
-	addAction(ACTION_MENULEFT,	X360_DPAD_LEFT);
-	addAction(ACTION_MENURIGHT,	X360_DPAD_RIGHT);
-	addAction(ACTION_MENUUP,	X360_DPAD_UP);
-	addAction(ACTION_MENUDOWN,	X360_DPAD_DOWN);
+	addAction(ACTION_MENULEFT,	JOY1_DPAD_LEFT);
+	addAction(ACTION_MENURIGHT,	JOY1_DPAD_RIGHT);
+	addAction(ACTION_MENUUP,	JOY1_DPAD_UP);
+	addAction(ACTION_MENUDOWN,	JOY1_DPAD_DOWN);
 	*/
 
 	addAction(ACTION_MENULEFT,	JOY1_STICK_LEFT);
