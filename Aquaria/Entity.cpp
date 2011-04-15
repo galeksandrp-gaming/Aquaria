@@ -2349,7 +2349,7 @@ void Entity::idle()
 	rotateToVec(Vector(0,-1),0.1);
 	vel.capLength2D(50);
 
-	setRiding(false);
+	setRiding(0);
 }
 
 void Entity::updateLance(float dt)
@@ -3069,7 +3069,6 @@ bool Entity::updateLocalWarpAreas(bool affectAvatar)
 	int i = 0;
 	for (i = 0; i < dsq->game->paths.size(); i++)
 	{
-		bool warp = false;
 		Path *p = dsq->game->paths[i];
 		if (!p->nodes.empty())
 		{
