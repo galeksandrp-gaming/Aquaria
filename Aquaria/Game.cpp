@@ -8884,6 +8884,7 @@ void Game::onOptionsSave()
 
 	if (keyConfigMenu)
 	{
+		AquariaKeyConfig::waitingForInput = 0;
 		dsq->screenTransition->capture();
 		toggleKeyConfigMenu(false);
 		toggleOptionsMenu(true, false, true);
@@ -8919,6 +8920,7 @@ void Game::onOptionsCancel()
 
 	if (keyConfigMenu)
 	{
+		AquariaKeyConfig::waitingForInput = 0;
 		dsq->screenTransition->capture();
 		toggleKeyConfigMenu(false);
 		toggleOptionsMenu(true, true, true);
