@@ -112,6 +112,13 @@ const float JOYSTICK_HIGH_THRESHOLD = 0.6;
 // Axis input distance at which we accept a note.
 const float JOYSTICK_NOTE_THRESHOLD = 0.6;
 
+// Mouse cursor distance (from note icon, in virtual pixels) below which
+// we accept a note.
+const float NOTE_ACCEPT_DISTANCE = 25;
+// Joystick input angle offset (from note icon, in degrees) below which
+// we accept a note.
+const float NOTE_ACCEPT_ANGLE_OFFSET = 15;
+
 volatile int micNote = -1;
 bool openedFromMicInput = false;
 
@@ -451,7 +458,7 @@ void SongIcon::onUpdate(float dt)
 	}
 	if (alpha.x == 1)
 	{
-		if ((!openedFromMicInput && isCoordinateInRadius(core->mouse.position, 25)) || micNote == note) // 40 width.x
+		if ((!openedFromMicInput && isCoordinateInRadius(core->mouse.position, NOTE_ACCEPT_DISTANCE)) || micNote == note)
 		{
 			//if (delay == 0)
 			if (true)
@@ -476,7 +483,7 @@ void SongIcon::onUpdate(float dt)
 				}
 			}
 		}
-		else if (openedFromMicInput || !isCoordinateInRadius(core->mouse.position, 25*1.25f))
+		else if (openedFromMicInput || !isCoordinateInRadius(core->mouse.position, NOTE_ACCEPT_DISTANCE*1.25f))
 		{
 			if (cursorIsIn)
 			{
@@ -2133,205 +2140,54 @@ void Avatar::updateSingingInterface(float dt)
 		}
 		else
 		{
-			//if (dsq->inputMode == INPUT_JOYSTICK)
+			if (dsq->inputMode == INPUT_JOYSTICK)
 			{
-				//core->mouse.position += core->joystick.position * dsq->user.control.joyCursorSpeed;
+				Vector d = dsq->joystick.position;
 
-				/*
-				cursorPos.update(dt);
-				if (cursorPos.isInterpolating())
+				if (d.isLength2DIn(JOYSTICK_NOTE_THRESHOLD))
 				{
-				}
-				*/
-
-				int cursorRadius = singingInterfaceRadius-8;
-
-
-
-				static float returnDelay = 0;
-
-				Vector desired;
-
-				/*
-				// was recently in...
-				if (core->joystick.dpadLeft || isActing(ACTION_SWIMLEFT))
-				{
-					//debugLog("left");
-					desired.x = -(1);
-					usingDigital = true;
-				}
-				if (core->joystick.dpadRight || isActing(ACTION_SWIMRIGHT))
-				{
-					//debugLog("right");
-					desired.x = (1);
-					usingDigital = true;
-				}
-
-				if (core->joystick.dpadDown || isActing(ACTION_SWIMDOWN))
-				{
-					//debugLog("down");
-					desired.y = 1;
-					usingDigital = true;
-				}
-				if (core->joystick.dpadUp || isActing(ACTION_SWIMUP))
-				{
-					//debugLog("up");
-					desired.y = -1;
-					usingDigital = true;
-				}
-				*/
-
-				/*
-				static float dpadTimer = 0;
-				static Vector lastDesired;
-				bool doit = false;
-				if (desired == lastDesired)
-				{
-					dpadTimer += dt;
-					if (dpadTimer > 0.05f)
-					{
-						dpadTimer = 0;
-						doit = true;
-					}
+					core->setMousePosition(core->center);
 				}
 				else
 				{
-					dpadTimer = 0;
-				}
+					// Choose the closest note based on the joystick input
+					// angle (rather than the resultant cursor position).
+					// But if we already have an active note and we're not
+					// within the note-accept threshold, maintain the
+					// current note instead.
+					float angle = (atan2f(-d.y, d.x) * 180 / PI) + 90;
+					if (angle < 0)
+						angle += 360;
+					int closestNote = (int)floorf(angle/45 + 0.5f);
+					float angleOffset = fabsf(angle - closestNote*45);
+					if (closestNote == 8)
+						closestNote = 0;
 
-				if (doit)
-				{
-					desired.setLength2D(cursorRadius);
-					core->mouse.position = Vector(400,300)+desired;
-					core->setMousePosition(core->mouse.position);
-
-				}
-				lastDesired = desired;
-				*/
-
-				//desired.setLength2D(cursorRadius);
-
-				returnDelay -= dt;
-
-				int spd = 1500;//850;
-
-				desired.setLength2D(spd*dt);
-
-				
-				if (dsq->inputMode == INPUT_JOYSTICK)// && !dsq->joystick.position.isLength2DIn(0.4))
-				{
-
-					//if (!dsq->joystick.position.isLength2DIn(0.9))
+					bool setNote = (angleOffset <= NOTE_ACCEPT_ANGLE_OFFSET);
+					if (!setNote)
 					{
-						Vector p(core->center);
-						Vector d = dsq->joystick.position;
-
-						/*
-						d.x = float(int((d.x*2)))/4.0f;
-						d.y = float(int((d.y*2)))/4.0f;
-						d.normalize2D();
-						*/
-
-						if (!d.isLength2DIn(JOYSTICK_NOTE_THRESHOLD))
+						bool alreadyAtNote = false;
+						for (int i = 0; i < songIcons.size(); i++)
 						{
-							d.normalize2D();
+							const float dist = (songIcons[i]->position - core->mouse.position).getSquaredLength2D();
+							if (dist <= sqr(NOTE_ACCEPT_DISTANCE))
+							{
+								alreadyAtNote = true;
+								break;
+							}
 						}
-
-						p = p + d*cursorRadius-1;
-						core->setMousePosition(p);
+						if (!alreadyAtNote)
+							setNote = true;
 					}
-				}
-				else if (desired.x != 0 || desired.y != 0)
-				{
-					returnDelay = 0.1;
-					//debugLog("desired not zero");
-					//debugLog("mouse position set");
-					//core->mouse.position = Vector(400,300)+desired;
-					core->mouse.position += desired;
 
-					Vector diff = core->mouse.position - Vector(400,300);
-					if (!diff.isLength2DIn(cursorRadius))
-					{
-						diff.setLength2D(cursorRadius);
-						core->mouse.position = Vector(400,300) +diff;
-					}
-					core->setMousePosition(core->mouse.position);
-					/*
-					cursorPos.interpolateTo(desired, 0.1);
-					core->setMousePosition(cursorPos);
-					*/
-				}
-				else if (usingDigital)
-				{
-					if (returnDelay <= 0)
-					{
-						debugLog("desired is zero");
-						Vector c = core->center;
-						Vector dir = c - core->mouse.position;
-						if (dir.isLength2DIn(8))
-						{
-							debugLog("in range");
-							core->mouse.position = c;
-						}
-						else
-						{
-							debugLog("NOT in range");
-							dir.setLength2D(dt * 400);
-							core->mouse.position += dir;
-						}
-						core->setMousePosition(core->mouse.position);
-					}
-				}
-
-
-
-
-
-					//(core->joystick.position * (singingInterfaceRadius-16)) + Vector(400,300);
-			}
-
-			//Vector dist = dsq->getGameCursorPosition() - dsq->game->avatar->position;
-			/*
-			Vector dist = core->mouse.position - Vector(400,300);
-			int checkRad = singingInterfaceRadius-10;
-			if (dist.getSquaredLength2D() > sqr(checkRad))
-			{
-				dist |= (checkRad);
-				core->setMousePosition(Vector(400,300)+dist);
-			}
-			*/
-
-			/*
-			static float timer=0;
-			timer += dt;
-			if (timer > 0.1f)
-			{
-				if (dist.getSquaredLength2D() > sqr(singingInterfaceRadius))
-				{
-					dist |= singingInterfaceRadius-10;
-					//core->mouse.position = dsq->game->avatar->position + dist;
-
+					if (setNote)
+						core->setMousePosition(songIcons[closestNote]->position);
 				}
 			}
-			*/
-			//core->setMousePosition(Vector(400,300)+dist/*dsq->game->avatar->position + dist - core->screenCenter*/);
-			//HACK: constrain the mouse to the circle
-			/*
-			if (dist.getSquaredLength2D() > sqr(singingInterfaceRadius*core->invGlobalScale))
-			{
-
-				dist |= singingInterfaceRadius*core->invGlobalScale-20;
-				//core->setMousePosition(Vector(400,300));
-				core->setMousePosition(((dsq->game->avatar->position + dist)-dsq->screenCenter) + Vector(400,300));
-				//core->setMousePosition(dsq->game->avatar->position + dist);
-				//core->setMousePosition((dsq->game->avatar->position + dist)*core->globalScale.x - dsq->screenCenter);
-			}
-			*/
 
 			setSongIconPositions();
 		}
 	}
-
 }
 
 void Avatar::setSongIconPositions()
