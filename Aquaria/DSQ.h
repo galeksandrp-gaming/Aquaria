@@ -1342,7 +1342,9 @@ public:
 
 	int getEntityTypeIndexByName(std::string s);
 	void screenMessage(const std::string &msg);
+#ifdef AQUARIA_BUILD_CONSOLE  // No need to override it otherwise.
 	void debugLog(const std::string &s);
+#endif
 	void toggleConsole();
 	void toggleEffects();
 	void debugMenu();
@@ -1426,7 +1428,10 @@ public:
 
 	Demo demo;
 
-	DebugFont *fpsText, *console, *cmDebug;
+	DebugFont *fpsText, *cmDebug;
+#ifdef AQUARIA_BUILD_CONSOLE
+	DebugFont *console;
+#endif
 	BitmapText *versionLabel;
 	ProfRender *profRender;
 	
@@ -1555,7 +1560,9 @@ protected:
 	void onMouseInput();
 	std::vector<std::string> voxQueue;
 
+#ifdef AQUARIA_BUILD_CONSOLE
 	std::vector<std::string> consoleLines;
+#endif
 
 	std::vector <AquariaSaveSlot*> saveSlots;
 
