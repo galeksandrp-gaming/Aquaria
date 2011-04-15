@@ -312,6 +312,11 @@ DSQ::DSQ(std::string fileSystem) : Core(fileSystem, LR_MAX, APPNAME, PARTICLE_AM
 	//stream = 0;
 }
 
+DSQ::~DSQ()
+{
+	dsq = 0;
+}
+
 void DSQ::onAltTab()
 {
 	if (getAltState())
