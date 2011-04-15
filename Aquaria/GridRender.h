@@ -45,6 +45,8 @@ public:
 	bool isCursorIn();
 	void slide(int slid);
 	void toggle(int on);
+	float getMiniMapWidth() const;
+	float getMiniMapHeight() const;
 
 	bool isRadarHide() { return radarHide; }
 protected:
@@ -55,9 +57,9 @@ protected:
 	float doubleClickDelay;
 	bool isCursorInButtons();
 	bool _isCursorIn, lastCursorIn;
-	bool mb;
+	bool mouseDown;
 	bool doRender;
-	float a;
+	float lightLevel;
 	void onUpdate(float dt);
 	void onRender();
 
