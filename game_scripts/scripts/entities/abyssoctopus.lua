@@ -138,7 +138,7 @@ function exitState(me)
 	if entity_isState(me, STATE_CHARGE1) then
 		entity_sound(me, "PowerUp")
 		entity_sound(me, "FizzleBarrier")
-		beam = createBeam(bx, by, entity_getRotation(me)-180)
+		beam = createBeam(0, 0, entity_getRotation(me)-180)
 		beam_setTexture(beam, "particles/Beam")
 		entity_setState(me, STATE_IDLE)
 	elseif entity_isState(me, STATE_DEATHSCENE) then
