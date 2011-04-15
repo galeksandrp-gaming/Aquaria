@@ -181,9 +181,11 @@ function hitSurface(me)
 end
 
 function songNote(me, note)
+	v.note = note
 end
 
 function songNoteDone(me, note)
+	v.note = -1
 end
 
 function song(me, song)
