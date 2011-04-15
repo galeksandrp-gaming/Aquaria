@@ -815,19 +815,63 @@ void DSQ::takeScreenshotKey()
 
 Quad *loading=0;
 
-float loadingBit = 0;
+float loadingProgress = 0;
+static const float loadingProgressTable[] = {
+	#define LOAD_INITIAL	0  // Initial display (just so it's not empty)
+	#define LOAD_PARTICLES	1  // After loading particles and shots
+	#define LOAD_SOUNDCACHE	2  // After loading the sound cache
+	#define LOAD_FONTS		3  // After loading fonts
+	#define LOAD_GRAPHICS1	4  // After creating graphics resources
+	#define LOAD_GRAPHICS2	5  // After creating more graphics resources
+	#define LOAD_TEXTURES	6  // After loading textures to be precached
+	#define LOAD_FINISHED	7  // All done!
+	0.01, 0.07, 0.20, 0.23, 0.24, 0.25, 0.89, 1.00,
+};
 
-void loadBit()
+void loadBit(int index, float perc = 1)
 {
-	//loading->alpha += 0.1;
-	//loadingBit = 1;
-	loadingBit = MIN(1, loadingBit + 0.1);
+	const float previous = index==0 ? 0 : loadingProgressTable[index-1];
+	const float next = loadingProgressTable[index];
+	loadingProgress = MIN(1, previous + ((next - previous) * MIN(1, perc)));
 
-	loading->setWidthHeight(loadingBit*600, 23);
+	loading->setWidthHeight(loadingProgress*600, 23);
 
 	core->render();
 	core->showBuffer();
 }
+
+unsigned int soundsLoaded = 0;
+const unsigned int soundsExpected = 195;
+void loadBitForSoundCache()
+{
+	if (soundsLoaded > 0 && soundsLoaded < soundsExpected)
+	{
+		// Only update every 4 sounds so we don't waste too much
+		// time waiting for vsync.
+		if (soundsLoaded % 4 == 0)
+		{
+			loadBit(LOAD_SOUNDCACHE,
+					(float)soundsLoaded / soundsExpected);
+		}
+	}
+	soundsLoaded++;
+}
+
+unsigned int texturesLoaded = 0;
+const unsigned int texturesExpected = 652;
+void loadBitForTexPrecache()
+{
+	if (texturesLoaded > 0 && texturesLoaded < texturesExpected)
+	{
+		if (texturesLoaded % 16 == 0)
+		{
+			loadBit(LOAD_TEXTURES,
+					(float)texturesLoaded / texturesExpected);
+		}
+	}
+	texturesLoaded++;
+}
+
 
 void DSQ::setVersionLabelText() {
 	std::ostringstream os;
@@ -1165,7 +1209,7 @@ This build is not yet final, and as such there are a couple things lacking. They
 
 
 
-	loadBit();
+	loadBit(LOAD_INITIAL);
 
 	debugLog("Loading Particle Bank...");
 	{
@@ -1174,15 +1218,15 @@ This build is not yet final, and as such there are a couple things lacking. They
 	}
 	debugLog("OK");
 
-	loadBit();
+	loadBit(LOAD_PARTICLES);
 
 	
 
 	debugLog("Loading Sound Cache...");
-		sound->loadSoundCache();
+		sound->loadSoundCache("sfx/cache/", ".ogg", loadBitForSoundCache);
 	debugLog("OK");
 
-	loadBit();
+	loadBit(LOAD_SOUNDCACHE);
 
 
 	debugLog("Init Script Interface...");
@@ -1191,7 +1235,7 @@ This build is not yet final, and as such there are a couple things lacking. They
 
 	loadFonts();
 
-	loadBit();
+	loadBit(LOAD_FONTS);
 
 	setTexturePointers();
 
@@ -1335,7 +1379,7 @@ This build is not yet final, and as such there are a couple things lacking. They
 
 	debugLog("3");
 
-	loadBit();
+	loadBit(LOAD_GRAPHICS1);
 
 	debugLog("4");
 
@@ -1444,7 +1488,7 @@ This build is not yet final, and as such there are a couple things lacking. They
 
 	debugLog("8");
 
-	loadBit();
+	loadBit(LOAD_GRAPHICS2);
 
 	debugLog("9");
 
@@ -1481,11 +1525,11 @@ This build is not yet final, and as such there are a couple things lacking. They
 		fpsText->alpha = 0;
 	}
 
-	precacher.precacheList("data/precache.txt");
+	precacher.precacheList("data/precache.txt", loadBitForTexPrecache);
 
 	setTexturePointers();
 
-	loadBit();
+	loadBit(LOAD_TEXTURES);
 
 	renderObjectLayers[LR_ENTITIES].startPass = -2;
 	renderObjectLayers[LR_ENTITIES].endPass = 5;
@@ -1541,8 +1585,7 @@ This build is not yet final, and as such there are a couple things lacking. They
 	
 	dsq->continuity.reset();
 
-	loadingBit = 1;
-	loadBit();
+	loadBit(LOAD_FINISHED);
 
 	/*
 	sound->playSfx("defense", 0.5);
