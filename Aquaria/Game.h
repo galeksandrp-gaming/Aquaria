@@ -222,8 +222,8 @@ public:
 	float scaleFactor;
 
 	void eatMe();
-
 	void moveRight();
+	void discard();
 
 	bool isCursorIn();
 
