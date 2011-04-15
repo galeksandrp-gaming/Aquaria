@@ -47,10 +47,9 @@ body = 0
 
 idolWeight = 200
 
--- note: check this against creatorform5 when its done
 function generateSong()
 	for i=1, 10 do
-		song[i] = math.random(7)
+		song[i] = math.random(8)-1
     end
 end
 
