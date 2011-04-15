@@ -593,6 +593,7 @@ protected:
 	Quad *placer;
 	DebugFont *text;
 	bool on;
+	InterpolatedVector oldGlobalScale;
 };
 
 #endif  // AQUARIA_BUILD_SCENEEDITOR
@@ -693,6 +694,8 @@ public:
 
 	std::vector<ElementTemplate> elementTemplates;
 	std::string sceneName;
+
+	ElementTemplate *getElementTemplateByIdx(int idx);
 
 	void saveScene(std::string scene);
 	typedef std::vector<WarpArea> WarpAreas;
@@ -1127,9 +1130,6 @@ protected:
 
 	void updateCurrentVisuals(float dt);
 	std::string lastTileset;
-
-	ElementTemplate *getElementTemplateByIdx(int idx);
-
 
 
 	void createLi();

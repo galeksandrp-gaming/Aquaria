@@ -3269,6 +3269,12 @@ void SceneEditor::toggle(bool on)
 		{
 			dsq->getRenderObjectLayer(i)->update = true;
 		}
+
+		oldGlobalScale = core->globalScale;
+		const float cameraOffset = 1/oldGlobalScale.x - 1/zoom.x;
+		core->cameraPos.x += cameraOffset * core->getVirtualWidth()/2;
+		core->cameraPos.y += cameraOffset * core->getVirtualHeight()/2;
+		core->globalScale = zoom;
 	}
 	else
 	{
@@ -3295,6 +3301,11 @@ void SceneEditor::toggle(bool on)
 		dsq->darkLayer.toggle(true);
 
 		dsq->game->rebuildElementUpdateList();
+
+		const float cameraOffset = 1/oldGlobalScale.x - 1/zoom.x;
+		core->cameraPos.x -= cameraOffset * core->getVirtualWidth()/2;
+		core->cameraPos.y -= cameraOffset * core->getVirtualHeight()/2;
+		core->globalScale = oldGlobalScale;
 	}
 }
 
@@ -3307,31 +3318,49 @@ void SceneEditor::updateText()
 {
 	std::ostringstream os;
 	os << dsq->game->sceneName << " bgL[" << bgLayer << "] (" <<
-		(int)dsq->cameraPos.x << ", " << (int)dsq->cameraPos.y << ") ("
+		(int)dsq->cameraPos.x << "," << (int)dsq->cameraPos.y << ") ("
 		//<< (int)dsq->game->avatar->position.x
-		//<< ", " << (int)dsq->game->avatar->position.y << ", " << (int)dsq->game->avatar->position.z << ")" << " ("
-		<< (int)dsq->getGameCursorPosition().x << ", " << (int)dsq->getGameCursorPosition().y << ")"
-		<< " - " << selectedEntity.name << " - v[" << selectedVariation << "]"
-		<< " ";
+		//<< "," << (int)dsq->game->avatar->position.y << "," << (int)dsq->game->avatar->position.z << ")" << " ("
+		<< (int)dsq->getGameCursorPosition().x << "," << (int)dsq->getGameCursorPosition().y << ")" << " ";
 	switch(editType)
 	{
 	case ET_ELEMENTS:
 		os << "elements";
+		if (selectedElements.size() > 1)
+		{
+			os << " - " << selectedElements.size() << " selected";
+		}
+		else
+		{
+			Element *e;
+			if (!selectedElements.empty())
+				e = selectedElements[0];
+			else
+				e = editingElement;
+			if (e)
+			{
+				os << " id: " << e->templateIdx;
+				ElementTemplate *et = game->getElementTemplateByIdx(e->templateIdx);
+				if (et)
+					os << " gfx: " << et->gfx;
+			}
+		}
 	break;
 	case ET_ENTITIES:
+		os << "entities";
 		if (editingEntity)
 		{
-			os << "id: " << editingEntity->getID() << " name: " << editingEntity->name << " flag: " << dsq->continuity.getEntityFlag(dsq->game->sceneName, editingEntity->getID());
+			os << " id: " << editingEntity->getID() << " name: " << editingEntity->name << " flag: " << dsq->continuity.getEntityFlag(dsq->game->sceneName, editingEntity->getID());
 			os << " groupID: " << editingEntity->getGroupID() << " ";
-			os << " state: " << editingEntity->getState() << " ";
+			os << " state: " << editingEntity->getState();
 		}
-		os << "entities";
 	break;
 	case ET_PATHS:
-		os << "paths";
+		os << "paths si[" << selectedIdx << "]";
+		if (getSelectedPath())
+			os << " name: " << getSelectedPath()->name;
 	break;
 	}
-	os << " si[" << selectedIdx << "]";
 	text->setText(os.str());
 }
 
@@ -3468,16 +3497,6 @@ void SceneEditor::update(float dt)
 		break;
 		}
 
-		float spd = 0.5;
-		if (isActing(ACTION_ZOOMOUT))
-			zoom -= Vector(spd,spd)*dt;
-		else if (isActing(ACTION_ZOOMIN))
-			zoom += Vector(spd,spd)*dt;
-		if (zoom.x < 0.04f)
-		{
-			zoom.x = zoom.y = 0.04f;
-		}
-		core->globalScale = zoom;
 		updateText();
 		ActionMapper::onUpdate(dt);
 
@@ -3488,34 +3507,44 @@ void SceneEditor::update(float dt)
 
 		//selectedIdx = idx;
 
-		int camSpeed = 1200;
+		int camSpeed = 500/zoom.x;
 		if (core->getShiftState())
-			camSpeed = 10000;
+			camSpeed = 5000/zoom.x;
 		if (isActing(ACTION_CAMLEFT))
-		{
 			dsq->cameraPos.x -= dt*camSpeed;
-		}
 		if (isActing(ACTION_CAMRIGHT))
 			dsq->cameraPos.x += dt*camSpeed;
 		if (isActing(ACTION_CAMUP))
 			dsq->cameraPos.y -= dt*camSpeed;
 		if (isActing(ACTION_CAMDOWN))
 			dsq->cameraPos.y += dt*camSpeed;
+		if (core->mouse.buttons.middle && !core->mouse.change.isZero())
+		{
+			dsq->cameraPos += core->mouse.change*(4/zoom.x);
+			core->setMousePosition(core->mouse.lastPosition);
+		}
 
-		if (core->mouse.buttons.middle)
-		{
-			dsq->cameraPos += core->mouse.change*20;
-			core->setMousePosition(core->center);
-			//core->mouse.position = Vector(400,300);
-		}
-		if (core->mouse.scrollWheelChange < 0)
-		{
-			zoom -= Vector(spd*0.05,spd*0.05);
-		}
+		float spd = 0.5;
+		const Vector oldZoom = zoom;
+		if (isActing(ACTION_ZOOMOUT))
+			zoom /= (1 + spd*dt);
+		else if (isActing(ACTION_ZOOMIN))
+			zoom *= (1 + spd*dt);
+		else if (core->mouse.scrollWheelChange < 0)
+			zoom /= 1.05f;
 		else if (core->mouse.scrollWheelChange > 0)
+			zoom *= 1.05f;
+		if (zoom.x < 0.04f)
+			zoom.x = zoom.y = 0.04f;
+		core->globalScale = zoom;
+		if (zoom.x != oldZoom.x)
 		{
-			zoom += Vector(spd*0.05,spd*0.05);
+			const float mouseX = core->mouse.position.x;
+			const float mouseY = core->mouse.position.y;
+			dsq->cameraPos.x += mouseX/oldZoom.x - mouseX/zoom.x;
+			dsq->cameraPos.y += mouseY/oldZoom.y - mouseY/zoom.y;
 		}
+
 		/*
 		for (int i = 0; i < dsq->elements.size(); i++)
 		{
