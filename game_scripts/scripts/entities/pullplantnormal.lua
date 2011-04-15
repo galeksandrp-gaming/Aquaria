@@ -70,6 +70,10 @@ function init(me)
 					elseif isMapName("veil03") then
 						v.commonInit(me, "horseshoe", "")
 						
+					elseif isMapName("vedhacave")
+						or isMapName("forestspritecave") then
+						v.commonInit(me, "", "PlantLeaf")
+						
 					else
 						v.commonInit(me, "Raspberry", "")
 						
