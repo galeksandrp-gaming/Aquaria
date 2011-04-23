@@ -249,36 +249,30 @@ void Joystick::rumble(float leftMotor, float rightMotor, float time)
 		if (eventfd >= 0) {
 			struct ff_effect effect;
 			struct input_event event;
-			uint16_t direction, magnitude;
-
-			if (leftMotor < rightMotor) {
-				direction = 0xC000; // 270 deg, right
-				magnitude = (uint16_t) (((leftMotor + rightMotor) * 0.5) * 0xffff);
-			}
-			else if (leftMotor > rightMotor) {
-				direction = 0x4000; // 90 deg, left
-				magnitude = (uint16_t) (((leftMotor + rightMotor) * 0.5) * 0xffff);
-			}
-			else {
-				direction = 0x000; // 0 deg, down
-				magnitude = (uint16_t) (leftMotor * 0xffff);
-			}
 
 			effect.type = FF_RUMBLE;
 			effect.id = effectid;
-			effect.direction = direction;
+			effect.direction = 0;
 			effect.trigger.button = 0;
 			effect.trigger.interval = 0;
 			effect.replay.length = (uint16_t) (time * 1000);
 			effect.replay.delay = 0;
-			effect.u.rumble.strong_magnitude = magnitude;
-			effect.u.rumble.weak_magnitude = magnitude;
+			if (leftMotor > rightMotor) {
+				effect.u.rumble.strong_magnitude = (uint16_t) (leftMotor * 0xffff);
+				effect.u.rumble.weak_magnitude = (uint16_t) (rightMotor * 0xffff);
+			}
+			else {
+				effect.u.rumble.strong_magnitude = (uint16_t) (rightMotor * 0xffff);
+				effect.u.rumble.weak_magnitude = (uint16_t) (leftMotor * 0xffff);
+			}
 	
 			if (ioctl(eventfd, EVIOCSFF, &effect) == -1) {
 				debugLog(std::string("Upload rumble effect: ") + strerror(errno));
 				return;
 			}
 	
+			event.time.tv_sec = 0;
+			event.time.tv_usec = 0;
 			event.type = EV_FF;
 			event.code = effectid = effect.id;
 	
