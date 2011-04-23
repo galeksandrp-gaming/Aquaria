@@ -1479,7 +1479,7 @@ bool Core::initJoystickLibrary(int numSticks)
 	SDL_InitSubSystem(SDL_INIT_JOYSTICK);
 #endif
 
-	for (int i = 0; i < numSticks; i++)
+	if (numSticks > 0)
 		joystick.init(0);
 
 	joystickEnabled = true;
@@ -4069,6 +4069,17 @@ void Core::shutdownInputLibrary()
 #endif
 }
 
+void Core::shutdownJoystickLibrary()
+{
+	if (joystickEnabled) {
+		joystick.shutdown();
+#ifdef BBGE_BUIDL_SDL
+		SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+#endif
+		joystickEnabled = false;
+	}
+}
+
 void Core::clearRenderObjects()
 {
 	for (int i = 0; i < renderObjectLayers.size(); i++)
@@ -4097,6 +4108,10 @@ void Core::shutdown()
 
 	debugLog("Core::shutdown");
 	shuttingDown = true;
+
+	debugLog("Shutdown Joystick Library...");
+		shutdownJoystickLibrary();
+	debugLog("OK");
 
 	debugLog("Shutdown Input Library...");
 		shutdownInputLibrary();

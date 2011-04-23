@@ -11108,7 +11108,7 @@ void Game::removeState()
 	*/
 	// AFTER TRANSITION:
 
-	core->joystick.rumble(0,0,0);
+	dsq->rumble(0,0,0);
 
 	dsq->sound->clearFadingSfx();
 
