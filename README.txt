@@ -62,12 +62,12 @@ needs environment variables to be set that map joysticks via their indices
 to event devices. E.g. to map the first joystick to the event device
 "/dev/input/event6" you need to run aquaria like this:
 
-	export AQUARIA_EVENT_JOYSTICK0=/dev/input/event6
-	aquaria
+$ export AQUARIA_EVENT_JOYSTICK0=/dev/input/event6
+$ aquaria
 
-Because aquaria is a singleplayer game you never need to map another joystick
+Because aquaria is a single player game you never need to map another joystick
 than the first one. Also keep in mind that your joystick event device has
 another path. E.g. I use this command to run aquaria:
 
-	export AQUARIA_EVENT_JOYSTICK0=/dev/input/by-id/usb-©Microsoft_Corporation_Controller_0709960-event-joystick
-	aquaria
+$ export AQUARIA_EVENT_JOYSTICK0=/dev/input/by-id/usb-©Microsoft_Corporation_Controller_0709960-event-joystick
+$ aquaria
