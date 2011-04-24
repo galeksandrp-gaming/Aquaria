@@ -155,7 +155,7 @@ void Joystick::init(int stick)
 	const char* evdevice = getenv(envkey.c_str());
 
 	if (evdevice != NULL) {
-		eventfd = open(evdevice, O_RDWR);
+		eventfd = open(evdevice, O_RDWR, 0);
 		if (eventfd < 0) {
 			debugLog(std::string("Could not open rumble device [") + evdevice + "]: " + strerror(errno));
 		}
