@@ -18,10 +18,10 @@ Follow these steps to build Aquaria.
 build-essential cmake liblua5.1-0-dev libogg-dev libvorbis-dev
 libopenal-dev libsdl1.2-dev
 
-2- Create a sub-directory 'build' and move into it
+2- Create a sub-directory 'cmake-build' and move into it
 
-$ mkdir build
-$ cd build
+$ mkdir cmake-build
+$ cd cmake-build
 
 3- run cmake
 
