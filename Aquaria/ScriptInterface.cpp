@@ -1833,7 +1833,7 @@ luaFunc(getNearestIngredient)
 
 luaFunc(spawnAllIngredients)
 {
-	dsq->game->spawnAllIngredients(Vector(lua_tonumber(L, 1), lua_tonumber(L, 2)));
+	dsq->spawnAllIngredients(Vector(lua_tonumber(L, 1), lua_tonumber(L, 2)));
 	luaReturnNum(0);
 }
 

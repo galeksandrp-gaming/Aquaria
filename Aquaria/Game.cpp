@@ -391,7 +391,7 @@ void FoodSlot::toggle(bool f)
 void FoodSlot::refresh(bool effects)
 {
 	int offset = game->currentFoodPage*foodPageSize;
-	IngredientData *i = dsq->continuity.getIngredientByIndex(offset+slot);
+	IngredientData *i = dsq->continuity.getIngredientHeldByIndex(offset+slot);
 	if (i)
 	{
 		ingredient = i;
@@ -953,7 +953,7 @@ Ingredient *Game::getNearestIngredient(const Vector &pos, int radius)
 	int r2 = sqr(radius);
 	Ingredient *returnIngredient = 0;
 
-	for (Ingredient::Ingredients::iterator i = Ingredient::ingredients.begin(); i != Ingredient::ingredients.end(); i++)
+	for (Ingredients::iterator i = ingredients.begin(); i != ingredients.end(); i++)
 	{
 		int len = (pos - (*i)->position).getSquaredLength2D();
 		if (len <= r2 && (closest == - 1 || len < closest))
@@ -1157,6 +1157,7 @@ Ingredient *Game::spawnIngredient(const std::string &ing, const Vector &pos, int
 		if (d)
 		{
 			i = new Ingredient(pos, d);
+			ingredients.push_back(i);
 			if (out)
 			{
 				/*
@@ -1186,6 +1187,7 @@ Ingredient *Game::spawnIngredient(const std::string &ing, const Vector &pos, int
 void Game::spawnIngredientFromEntity(Entity *ent, IngredientData *data)
 {
 	Ingredient *i = new Ingredient(ent->position, data);
+	ingredients.push_back(i);
 	establishEntity(i);
 	//addRenderObject(i, LR_ENTITIES);
 }
@@ -2484,6 +2486,24 @@ bool Game::removeEntity(Entity *selected)
 	return false;
 }
 
+void Game::removeIngredient(Ingredient *i)
+{
+	ingredients.remove(i);
+}
+
+void Game::bindIngredients()
+{
+	for (Ingredients::iterator i = ingredients.begin(); i != ingredients.end(); ++ i)
+	{
+		Vector v = avatar->position - (*i)->position;
+		if (!v.isLength2DIn(16))
+		{
+			v.setLength2D(500);
+			(*i)->vel += v;
+		}
+	}
+}
+
 /*
 void Game::getEntityTypeName(int entityType)
 {
@@ -3325,8 +3345,9 @@ void Game::sortFood()
 	foodHolderNames.resize(foodHolders.size());
 	
 	for (int i = 0; i < foodHolders.size(); i++) {
-		if (foodHolders[i]->foodHolderIngredient) {
-			foodHolderNames[i] = foodHolders[i]->foodHolderIngredient->name;
+		IngredientData *ing = foodHolders[i]->getIngredient();
+		if (ing) {
+			foodHolderNames[i] = ing->name;
 			//errorLog(foodHolderNames[i]);
 			//foodHolders[i]->setIngredient(0);
 		}
@@ -3353,7 +3374,7 @@ void Game::sortFood()
 	
 	for (int i = 0; i < foodHolders.size(); i++) {
 		if (!foodHolderNames[i].empty()) {
-			foodHolders[i]->foodHolderIngredient = dsq->continuity.getIngredientHeldByName(foodHolderNames[i]);
+			foodHolders[i]->setIngredient(dsq->continuity.getIngredientHeldByName(foodHolderNames[i]), false);
 			//foodHolders[i]->setIngredient(dsq->continuity.getIngredientByName(foodHolderNames[i]));
 			/*
 			if (!foodHolders[i]->foodHolderIngredient) {
@@ -7304,9 +7325,9 @@ void Game::onPrevFoodPage()
 	}
 	else
 	{
-		if (!dsq->continuity.ingredients.empty())
+		if (dsq->continuity.hasIngredients())
 		{
-			currentFoodPage = ((dsq->continuity.ingredients.size()-1)/foodPageSize);
+			currentFoodPage = ((dsq->continuity.ingredientCount()-1)/foodPageSize);
 			refreshFoodSlots(false);
 		}
 	}
@@ -7325,7 +7346,7 @@ void Game::onPrevFoodPage()
 void Game::onNextFoodPage()
 {
 	int lastFoodPage = currentFoodPage;
-	if ((currentFoodPage+1)*foodPageSize < dsq->continuity.ingredients.size())
+	if ((currentFoodPage+1)*foodPageSize < dsq->continuity.ingredientCount())
 	{
 		currentFoodPage++;
 		refreshFoodSlots(false);
@@ -7449,8 +7470,7 @@ Recipe *Game::findRecipe(const std::vector<IngredientData*> &list)
 		data = dsq->continuity.getIngredientByName("SeaLoaf");
 		if (data)
 		{
-			cooked = dsq->continuity.pickupIngredient(data);
-			//cooked = true;
+			dsq->continuity.pickupIngredient(data);
 		}
 		*/
 	}
@@ -7678,7 +7698,7 @@ void Game::onCook()
 			showRecipe->alpha.startPath(t);
 		}
 
-		dsq->continuity.pickupIngredient(data);
+		dsq->continuity.pickupIngredient(data, 1);
 
 		dsq->continuity.removeEmptyIngredients();
 
@@ -9897,10 +9917,10 @@ void Game::updateInGameMenu(float dt)
 				*/
 			}
 
-			if (!dsq->continuity.ingredients.empty())
+			if (dsq->continuity.hasIngredients())
 			{
 				int pageNum = (currentFoodPage+1);
-				int numPages = ((dsq->continuity.ingredients.size()-1)/foodPageSize)+1;
+				int numPages = ((dsq->continuity.ingredientCount()-1)/foodPageSize)+1;
 
 				std::ostringstream os;
 				os << pageNum << "/" << numPages;
@@ -10792,14 +10812,6 @@ Shot *Game::fireShot(const std::string &bankShot, Entity *firer, Entity *target,
 	return s;
 }
 
-void Game::spawnAllIngredients(const Vector &position)
-{
-	for (int i = 0; i < dsq->continuity.ingredientData.size(); i++)
-	{
-		dsq->game->spawnIngredient(dsq->continuity.ingredientData[i].name, position, 4, 0);
-	}
-}
-
 Shot* Game::fireShot(Entity *firer, const std::string &particleEffect, Vector position, bool big, Vector dir, Entity *target, int homing, int velLenOverride, int targetPt)
 {
 	//sound->playSfx("BasicShot", 255, 0, rand()%100 + 1000);
@@ -11113,7 +11125,7 @@ void Game::removeState()
 	dsq->sound->clearFadingSfx();
 
 
-	Ingredient::ingredients.clear();
+	ingredients.clear();
 
 	core->particlesPaused = false;
 
