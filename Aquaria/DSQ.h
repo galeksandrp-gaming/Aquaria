@@ -1069,7 +1069,7 @@ public:
 	void loadIngredientData();
 	IngredientType getIngredientTypeFromName(const std::string &name);
 
-	void removeEmptyIngredients(int start=0);
+	void removeEmptyIngredients();
 
 	typedef std::vector<IngredientData> Ingredients;
 	Ingredients ingredients;

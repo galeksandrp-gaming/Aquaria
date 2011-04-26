@@ -2121,27 +2121,25 @@ void Continuity::initAvatar(Avatar *a)
 	a->skeletalSprite.animate(a->getIdleAnimName(), -1, 0);
 }
 
-void Continuity::removeEmptyIngredients(int start)
+void Continuity::removeEmptyIngredients()
 {
-	for (int i = start; i < ingredients.size(); i++)
+	std::set<std::string> emptyIngredients;
+
+	for (Ingredients::const_iterator i = ingredients.begin(); i != ingredients.end(); ++ i)
 	{
-		IngredientData ing = ingredients[i];
-
-		if (ingredients[i].amount == 0 && ingredients[i].held <= 0)
+		if (i->amount == 0 && i->held <= 0)
 		{
-			IngredientData remove = ingredients[i];
+			emptyIngredients.insert(i->name);
+		}
+	}
 
-			Ingredients copy = ingredients;
-			ingredients.clear();
-
-			for (int c = 0; c < copy.size(); c++)
-			{
-				if (copy[c].name == remove.name) continue;
-				ingredients.push_back(copy[c]);
-			}
-
-			removeEmptyIngredients(i);
-			return;
+	for (Ingredients::iterator i = ingredients.begin(); i != ingredients.end();)
+	{
+		if (emptyIngredients.find(i->name) != emptyIngredients.end()) {
+			ingredients.erase(i ++);
+		}
+		else {
+			++ i;
 		}
 	}
 }
