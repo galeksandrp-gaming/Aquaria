@@ -224,11 +224,10 @@ void FoodHolder::setIngredient(IngredientData *i, bool effects)
 	IngredientData *oldi = foodHolderIngredient;
 	foodHolderIngredient = i;
 
-
-	if (oldi && !i)
-	{
-		if (oldi->held >= 1)
-			oldi->held--;
+	if (oldi) {
+		if (oldi->held > 0)
+			oldi->held --;
+		oldi->amount ++;
 	}
 
 	if (!i)
@@ -242,27 +241,28 @@ void FoodHolder::setIngredient(IngredientData *i, bool effects)
 		}
 
 		game->enqueuePreviewRecipe();
-		//game->updatePreviewRecipe();
 	}
 	else
 	{
+		i->held ++;
+		if (i->amount > 0)
+			i->amount --;
+
+		ing->setTexture("Ingredients/" + i->gfx);
+		ing->renderQuad = true;
 		if (effects)
 		{
 			core->sound->playSfx("Wok");
+			
+			ing->scale.ensureData();
+			ing->scale.data->path.clear();
+			ing->scale.data->path.addPathNode(Vector(1,1),0);
+			ing->scale.data->path.addPathNode(Vector(1.25,1.25), 0.2);
+			ing->scale.data->path.addPathNode(Vector(1,1),1);
+			ing->scale.startPath(0.5);
 		}
-		ing->setTexture("Ingredients/" + i->gfx);
-		ing->renderQuad = true;
-		//renderQuad = true;
-
-		ing->scale.ensureData();
-		ing->scale.data->path.clear();
-		ing->scale.data->path.addPathNode(Vector(1,1),0);
-		ing->scale.data->path.addPathNode(Vector(1.25,1.25), 0.2);
-		ing->scale.data->path.addPathNode(Vector(1,1),1);
-		ing->scale.startPath(0.5);
 
 		game->enqueuePreviewRecipe();
-		//game->updatePreviewRecipe();
 	}
 }
 
@@ -302,16 +302,10 @@ void Game::updatePreviewRecipe()
 
 void FoodHolder::dropFood()
 {
-	//printf("drop food\n");
 	if (foodHolderIngredient)
 	{
-		//printf("has food\n");
-		foodHolderIngredient->amount++;
 		setIngredient(0);
 		dsq->game->refreshFoodSlots(true);
-	}
-	else {
-		//*p*/rintf("has no food\n");
 	}
 }
 
@@ -480,17 +474,13 @@ void FoodSlot::moveRight()
 	if (!ingredient) return;
 	if (ingredient->amount <= 0) return;
 
-	bool dropped = false;
 	for (int i = foodHolders.size()-1; i >= 0; i--)
 	{
 		if (foodHolders[i]->alpha.x > 0 && foodHolders[i]->alphaMod > 0 && foodHolders[i]->isEmpty() && !foodHolders[i]->isTrash())
 		{
 			foodHolders[i]->setIngredient(ingredient);
 			inCookSlot = true;
-			ingredient->amount --;
-			ingredient->held++;
 			refresh(true);
-			dropped = true;
 			break;
 		}
 	}
@@ -551,10 +541,7 @@ void FoodSlot::onUpdate(float dt)
 					}
 					else if (wp.x < 40 || wp.y < 40 || wp.x > 760 || wp.y > 560)
 					{
-						ingredient->amount--;
-						dsq->game->dropIngrNames.push_back(ingredient->name);
-						dsq->continuity.removeEmptyIngredients();
-						dsq->game->refreshFoodSlots(true);
+						discard();
 					}
 					else
 					{
@@ -568,10 +555,7 @@ void FoodSlot::onUpdate(float dt)
 
 								if (foodHolders[i]->isTrash())
 								{
-									ingredient->amount--;
-									dsq->game->dropIngrNames.push_back(ingredient->name);
-									dsq->continuity.removeEmptyIngredients();
-									dsq->game->refreshFoodSlots(true);
+									discard();
 
 									dsq->game->foodLabel->alpha.interpolateTo(0, 2);
 									dsq->game->foodDescription->alpha.interpolateTo(0, 2);
@@ -583,8 +567,6 @@ void FoodSlot::onUpdate(float dt)
 								{
 									foodHolders[i]->setIngredient(ingredient);
 									inCookSlot = true;
-									ingredient->amount --;
-									ingredient->held++;
 									refresh(true);
 									break;
 								}
@@ -704,8 +686,6 @@ void FoodSlot::onUpdate(float dt)
 					{
 						foodHolders[i]->setIngredient(ingredient);
 						inCookSlot = true;
-						ingredient->amount --;
-						ingredient->held++;
 						refresh();
 						dropped = true;
 						break;
@@ -3374,7 +3354,9 @@ void Game::sortFood()
 	
 	for (int i = 0; i < foodHolders.size(); i++) {
 		if (!foodHolderNames[i].empty()) {
-			foodHolders[i]->setIngredient(dsq->continuity.getIngredientHeldByName(foodHolderNames[i]), false);
+			IngredientData *ing = dsq->continuity.getIngredientHeldByName(foodHolderNames[i]);
+			foodHolders[i]->setIngredient(ing, false);
+
 			//foodHolders[i]->setIngredient(dsq->continuity.getIngredientByName(foodHolderNames[i]));
 			/*
 			if (!foodHolders[i]->foodHolderIngredient) {
@@ -3493,9 +3475,9 @@ void Game::createInGameMenu()
 	resBox->position = Vector(196, 285);
 	for (i = 0; i < core->screenModes.size(); i++)
 	{
-		char str[256];
-		sprintf(str, "%dx%d", core->screenModes[i].x, core->screenModes[i].y);
-		resBox->addItem(str);
+		ostringstream os;
+		os << core->screenModes[i].x << "x" << core->screenModes[i].y;
+		resBox->addItem(os.str());
 		if (core->screenModes[i].x == dsq->user.video.resx && core->screenModes[i].y == dsq->user.video.resy)
 		{
 			resBox->enqueueSelectItem(i);
@@ -7640,10 +7622,7 @@ void Game::onCook()
 		{
 			if (!foodHolders[i]->isEmpty()) {
 				IngredientData *ing = foodHolders[i]->getIngredient();
-				// FIXME: It _looks_ like *ing should be the actual inventory
-				// object, but playing it safe because I'm not sure.  --achurch
-				IngredientData *heldIng = dsq->continuity.getIngredientHeldByName(ing->name);
-				if (!heldIng || heldIng->amount < heldIng->held)
+				if (!ing || ing->amount < ing->held)
 				{
 					haveLeftovers = false;
 					break;
@@ -7652,16 +7631,13 @@ void Game::onCook()
 		}
 		for (int i = 0; i < foodHolders.size(); i++)
 		{
-			if (haveLeftovers)
+			IngredientData *ing = foodHolders[i]->getIngredient();
+			if (ing)
 			{
-				IngredientData *ing = foodHolders[i]->getIngredient();
-				if (ing)
-				{
-					IngredientData *heldIng = dsq->continuity.getIngredientHeldByName(ing->name);
-					heldIng->amount--;
-				}
+				ing->amount--;
 			}
-			else
+
+			if (!haveLeftovers)
 			{
 				foodHolders[i]->setIngredient(0, false);
 			}
@@ -7835,8 +7811,9 @@ void Game::setControlHint(const std::string &h, bool left, bool right, bool midd
 
 		Vector p = controlHint_mouseLeft->position + Vector(-100,0);
 
-		char str[256]; sprintf(str, "song/songslot-%d", dsq->continuity.getSongSlotByType(songType)); 
-		Quad *q = new Quad(str, p);
+		os.seekp(0);
+		os << "song/songslot-" << dsq->continuity.getSongSlotByType(songType);
+		Quad *q = new Quad(os.str(), p);
 		q->followCamera = 1;
 		q->scale = Vector(0.7, 0.7);
 		q->alpha = 0;
@@ -7849,8 +7826,9 @@ void Game::setControlHint(const std::string &h, bool left, bool right, bool midd
 		{
 			int note = song->notes[i];
 
-			char str[128]; sprintf(str, "song/notebutton-%d", note); 
-			Quad *q = new Quad(str, p);
+			os.seekp(0);
+			os << "song/notebutton-" << note; 
+			Quad *q = new Quad(os.str(), p);
 			q->color = dsq->getNoteColor(note)*0.5f + Vector(1, 1, 1)*0.5f;
 			q->followCamera = 1;
 			q->scale = Vector(1.0, 1.0);
