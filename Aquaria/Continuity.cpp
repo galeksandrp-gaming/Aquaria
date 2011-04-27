@@ -2137,23 +2137,15 @@ void Continuity::spawnAllIngredients(const Vector &position)
 
 void Continuity::removeEmptyIngredients()
 {
-	std::set<std::string> emptyIngredients;
-
-	for (IngredientDatas::const_iterator i = ingredients.begin(); i != ingredients.end(); ++ i)
+	for (IngredientDatas::iterator i = ingredients.begin(); i != ingredients.end();)
 	{
 		IngredientData *data = *i;
 		if (data->amount == 0 && data->held <= 0)
 		{
-			emptyIngredients.insert(data->name);
-		}
-	}
-
-	for (IngredientDatas::iterator i = ingredients.begin(); i != ingredients.end();)
-	{
-		if (emptyIngredients.find((*i)->name) != emptyIngredients.end()) {
 			ingredients.erase(i ++);
 		}
-		else {
+		else
+		{
 			++ i;
 		}
 	}
