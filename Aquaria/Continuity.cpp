@@ -2137,17 +2137,19 @@ void Continuity::spawnAllIngredients(const Vector &position)
 
 void Continuity::removeEmptyIngredients()
 {
-	for (IngredientDatas::iterator i = ingredients.begin(); i != ingredients.end();)
+	IngredientDatas kept;
+	for (IngredientDatas::const_iterator i = ingredients.begin(); i != ingredients.end(); ++ i)
 	{
 		IngredientData *data = *i;
-		if (data->amount == 0 && data->held <= 0)
+		if (data->amount > 0 || data->held > 0)
 		{
-			ingredients.erase(i ++);
+			kept.push_back(data);
 		}
-		else
-		{
-			++ i;
-		}
+	}
+	ingredients.clear();
+	for (IngredientDatas::const_iterator i = kept.begin(); i != kept.end(); ++ i)
+	{
+		ingredients.push_back(*i);
 	}
 }
 

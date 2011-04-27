@@ -693,7 +693,7 @@ class IngredientData
 {
 public:
 	IngredientData(const std::string &name, const std::string &gfx, IngredientType type)
-		: name(name), gfx(gfx), amount(1), held(0), type(type), marked(0), sorted(false) {}
+		: name(name), gfx(gfx), amount(0), held(0), type(type), marked(0), sorted(false) {}
 	int getIndex() const;
 	const std::string name, gfx;
 	const IngredientType type;
