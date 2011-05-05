@@ -263,8 +263,8 @@ static const char * const interfaceFunctions[] = {
 // Note that scripts should _not_ rely on AQUARIA_VERSION for the v = {}
 // assignment.  The code "if not AQUARIA_VERSION then v = {} end" would
 // work correctly in a top-level script, but if executed from a script
-// used as an include file, the definitions in the include file would not
-// be seen by its caller.
+// used as an include file, the table created in the include file would
+// overwrite any existing table created by the file's caller.
 //
 
 //============================================================================================
