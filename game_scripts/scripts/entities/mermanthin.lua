@@ -205,7 +205,6 @@ function update(me, dt)
 	end
 
 	if not v.playedSound and entity_isEntityInRange(me, getNaija(), 800) then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		v.playSoundDelay = v.playSoundDelay - dt
 		if v.playSoundDelay < 0 then
 			v.playedSound = true

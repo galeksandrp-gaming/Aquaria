@@ -78,7 +78,6 @@ end
 
 function update(me, dt)
 	if not v.started then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		return
 	end
 	if not entity_isState(me, STATE_DEATHSCENE) then

@@ -169,7 +169,6 @@ function update(me, dt)
 	end
 	
 	if not v.hungry and v.eating==0 then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		v.fedTime = v.fedTime - dt
 		if v.fedTime < 0 then		
 			v.hungry = true

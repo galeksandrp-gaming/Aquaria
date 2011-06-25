@@ -38,7 +38,6 @@ end
 
 function update(me, dt)
 	if not v.done and getStory() <= 8 then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		if node_isEntityIn(me, v.naija) then
 			v.done = true
 			

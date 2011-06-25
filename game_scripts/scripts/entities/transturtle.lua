@@ -232,7 +232,6 @@ function update(me, dt)
 	
 	if entity_isEntityInRange(me, v.n, 300) then
 		if not v.seen then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			emote(EMOTE_NAIJAWOW)
 			if anyOtherFlag() then
 				setControlHint(getStringBank(226), 0, 0, 0, 5, "transturtle/headicon")

@@ -141,9 +141,7 @@ end
 function update(me, dt)
 	--entity_updateMovement(me, dt)
 	if not v.fight and entity_isEntityInRange(me, v.n, 1400) then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		if not v.cut then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			v.cut = true
 			v.fight = true
 			entity_idle(v.n)

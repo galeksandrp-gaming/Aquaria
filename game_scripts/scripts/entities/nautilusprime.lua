@@ -135,7 +135,6 @@ function update(me, dt)
 
 	--[[
 	if not v.seen and entity_isEntityInRange(me, getNaija(), 600) then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		emote(EMOTE_NAIJAWOW)
 		v.seen = true
 	end
@@ -188,7 +187,6 @@ if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 					
 					local s = 0
 					if not v.beserk then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 						s = createShot("NautilusPrimeAngry", me, entity_getTarget(me), firex, firey)
 						v.fireDelay = 0.3
 					else
@@ -365,7 +363,6 @@ end
 function exitState(me)
 	if entity_getState(me)==STATE_ATTACKPREP then
 		if not v.beserk then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			entity_setState(me, STATE_ATTACK, 2.5)
 		else
 			entity_setState(me, STATE_ATTACK, 3)

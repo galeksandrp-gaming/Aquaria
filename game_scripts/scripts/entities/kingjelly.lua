@@ -163,7 +163,6 @@ end
 
 local function zapCollision(me, dt)
 	if not v.zapsOn then return end
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 	if avatar_isShieldActive() then return end
 	for i=1,v.nZaps do
 		local rot = bone_getRotation(v.zaps[i])
@@ -261,7 +260,6 @@ function enterState(me)
 	if entity_isState(me, STATE_IDLE) then
 	elseif entity_isState(me, STATE_READY) then
 		if not v.started then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			overrideZoom(0.5, 1)
 			playMusic("MiniBoss")
 			emote(EMOTE_NAIJAUGH)

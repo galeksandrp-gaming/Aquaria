@@ -261,7 +261,6 @@ function update(me, dt)
 	end
 	
 	if not v.seahorseCostume then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		if inCurrent then
 			entity_setMaxSpeed(me, 150)
 		else
@@ -318,7 +317,6 @@ if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			setRideSpeed(me)
 			--entity_setMaxSpeedLerp(me, 1, 0.8)
 			if not v.riding then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 				entity_setMaxSpeedLerp(me, 1, 1)
 			else			
 				setRideSpeed(me)
@@ -347,7 +345,6 @@ if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 	]]--
 	if entity_isState(me, STATE_IDLE) then
 		if not v.riding then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			v.avoidCollisionsTimer = v.avoidCollisionsTimer + dt
 			if v.avoidCollisionsTimer > 5 then
 				v.avoidCollisionsTimer = 0
@@ -499,7 +496,6 @@ end
 function enterState(me)
 	if entity_isState(me, STATE_IDLE) then
 		if not v.riding then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			entity_setMaxSpeedLerp(me, 1, 1)
 		end
 		v.avoidCollisionsTimer = 0

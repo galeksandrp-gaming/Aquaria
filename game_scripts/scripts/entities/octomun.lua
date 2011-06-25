@@ -144,7 +144,6 @@ function update(me, dt)
 	end
 	
 	if not v.started then return end
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 	
 	if quad_getAlpha(v.dark) < 0.1 then
 		v.inkBlastDelay = v.inkBlastDelay + dt

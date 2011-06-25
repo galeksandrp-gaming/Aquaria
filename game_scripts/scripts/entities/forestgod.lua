@@ -234,7 +234,6 @@ v.inCutScene = false
 local function cutscene(me)
 	v.n = getNaija()
 	if not v.inCutScene then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		v.inCutScene = true
 		pickupGem("Boss-PlantGoddess")
 		setFlag(FLAG_BOSS_FOREST,1)
@@ -336,7 +335,6 @@ function update(me, dt)
 	
 	if isFlag(FLAG_BOSS_FOREST, 0) and node_isEntityIn(v.enter, v.n) then
 		if not v.started then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			v.started = true
 			entity_setState(v.door, STATE_CLOSE)
 			playMusic("ForestGod")

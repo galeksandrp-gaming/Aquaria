@@ -29,7 +29,6 @@ end
 
 function update(me, dt)
 	if not v.done and node_isEntityIn(me, v.n) then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		v.done = true
 		if isDemo() then
 			entity_idle(v.n)

@@ -327,7 +327,6 @@ end
 
 function update(me, dt)
 	if not v.started then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		return
 	end
 	entity_clearTargetPoints(me)

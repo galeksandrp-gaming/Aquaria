@@ -36,13 +36,11 @@ end
 
 function update(me, dt)
 	if not v.didInit then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		doInit(me)
 		v.didInit = true
 	end
 	
 	if not v.done then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		if getFlag(FLAG_SUNKENCITY_PUZZLE) < SUNKENCITY_BOSSDONE then
 			if node_isEntityIn(me, getNaija()) then
 				debugLog("closing door")

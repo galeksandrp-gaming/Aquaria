@@ -107,7 +107,6 @@ function update(me, dt)
 	end
 	if isFlag(FLAG_VISION_ENERGYTEMPLE, 0) and v.n ~= 0 then
 		if not v.done1st and v.curNode == 1 and node_isEntityIn(v.lastNode, v.n) then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			doScene(me)
 		end
 		if not entity_isInterpolating(me) and entity_isEntityInRange(me, v.n, 256) and not v.is then
@@ -230,7 +229,6 @@ if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			end
 		end
 		if not v.over then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			if math.abs(entity_x(me)-entity_x(v.n)) > 100 then
 				entity_flipToEntity(me, v.n)
 			end

@@ -87,7 +87,6 @@ function update(me, dt)
 	if entity_isState(me, STATE_IDLE) then
 		v.inout = v.inout + dt*v.dir
 		if not v.spawn and v.inout > 0.2 then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			spawnParticleEffect("bubble-release", entity_x(me), entity_y(me))
 			v.spawn = true
 		end

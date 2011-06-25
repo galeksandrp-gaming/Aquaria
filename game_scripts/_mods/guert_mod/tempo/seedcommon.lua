@@ -67,7 +67,6 @@ end
 
 local function terminate(me)
 	if not v.done then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		
 		if v.seedType == v.SEED_VINE then
 			registerSporeDrop(entity_x(me), entity_y(me),1)
@@ -91,7 +90,6 @@ end
 
 function update(me, dt)
 	if not v.done then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		if entity_updateCurrents(me, dt) then
 			entity_setWeight(me, 1)
 		else

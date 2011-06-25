@@ -137,7 +137,6 @@ function sporesDropped(me, x, y, t)
 		return
 	end
 	if not v.done then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		if entity_isPositionInRange(me, x, y, 700) then
 			if v.lx == 0 and v.ly == 0 then
 				v.lx,v.ly = entity_getPosition(me)

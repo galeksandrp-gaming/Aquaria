@@ -40,7 +40,6 @@ end
 
 function update(me, dt)
 	if not v.done then 
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		if node_isEntityIn(me, v.n) then
 			v.done = true
 			

@@ -55,7 +55,6 @@ end
 function update(me, dt)
 	if isFlag(FLAG_MITHALAS_PRIESTS,0) then
 		if not v.started then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			if node_isEntityIn(me, v.n) then
 				v.started = true
 				entity_idle(v.n)

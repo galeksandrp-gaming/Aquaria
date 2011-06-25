@@ -54,7 +54,6 @@ function update(me, dt)
 	end	
 	
 	if not v.spawned and getFlag(FLAG_SUNKENCITY_PUZZLE) == SUNKENCITY_CLAYDONE then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		debugLog("starting boss fight")
 		
 		shakeCamera(5, 3)
@@ -81,7 +80,6 @@ if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 	end
 	--[[
 	if not v.spawned then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		if node_isEntityIn(me, getNaija()) then
 			entity_setState(v.dad, STATE_START)
 			entity_setState(v.mom, STATE_START)

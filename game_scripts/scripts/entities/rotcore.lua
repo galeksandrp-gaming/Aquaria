@@ -182,7 +182,6 @@ function update(me, dt)
 	end
 	
 	if not v.seen and entity_isEntityInRange(me, v.n, 800) then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		emote(EMOTE_NAIJAUGH)
 		v.seen = true
 	end

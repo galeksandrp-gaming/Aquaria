@@ -94,7 +94,6 @@ function update(me, dt)
 			end
 		else
 			if not v.spawnedEnemies then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 				if entity_isEntityInRange(me, v.n, 128) then
 					spawnEnemies(me)
 				end

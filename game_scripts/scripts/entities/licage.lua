@@ -113,7 +113,6 @@ function update(me, dt)
 	
 	if not isFlag(FLAG_FINAL, FINAL_FREEDLI) then
 		if not v.seen and entity_isEntityInRange(me, v.n, 600) then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			entity_flipToEntity(v.n, me)
 			entity_idle(v.n)
 			emote(EMOTE_NAIJALI)

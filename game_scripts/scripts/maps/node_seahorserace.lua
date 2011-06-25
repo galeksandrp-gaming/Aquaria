@@ -165,7 +165,6 @@ end
 
 function songNoteDone(me, note, t)
 	if not v.raceStarted then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		v.songNote1 = v.songNote2
 		v.songNote2 = v.songNote3
 		v.songNote3 = v.songNote4

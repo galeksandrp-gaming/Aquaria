@@ -33,7 +33,6 @@ function update(me)
 		v.ompo = getEntity("Ompo")
 	end
 	if not v.done and isFlag(FLAG_OMPO, 2) and node_isEntityIn(me, v.n) then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		v.done = true
 		entity_idle(v.n)
 		watch(1)

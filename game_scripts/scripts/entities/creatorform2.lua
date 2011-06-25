@@ -100,12 +100,10 @@ function update(me, dt)
 	
 	if bone ~= 0 then
 		if not v.inHand and v.grabDelay == 0 and bone == v.grabPoint then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			v.inHand = true
 			avatar_fallOffWall()
 		end
 		if not v.inHand and avatar_isBursting() and bone == v.bone_body and entity_setBoneLock(v.n, me, bone) then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		else
 			local bx, by = bone_getWorldPosition(bone)
 			local x, y = entity_getPosition(v.n)
@@ -142,7 +140,6 @@ if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 	end
 	
 	if not v.inHand and math.abs(entity_x(me) - entity_x(v.n)) > 256 then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		entity_flipToEntity(me, v.n)
 	end
 	

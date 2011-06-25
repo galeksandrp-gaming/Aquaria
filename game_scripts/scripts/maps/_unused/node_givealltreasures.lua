@@ -30,7 +30,6 @@ end
 function update(me, dt)
 	if isDeveloperKeys() then
 		if not v.done and node_isEntityIn(me, v.n) then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			debugLog("all treasures")
 			for i = FLAG_COLLECTIBLE_START, (FLAG_COLLECTIBLE_END-1) do
 				setFlag(i, 1)

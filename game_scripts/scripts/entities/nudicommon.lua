@@ -89,7 +89,6 @@ function update(me, dt)
 	entity_handleShotCollisions(me)
 	
 	if not v.isShell then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		if v.hasShell then
 			entity_moveAlongSurface(me, dt, 40, 6, 30)
 		else
@@ -114,7 +113,6 @@ if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		if entity_isBeingPulled(me) then
 			local x, y = entity_getVectorToEntity(getNaija(), me)
 			--if not vector_isLength2DIn(x, y, 300) and not v.escaping then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			if true then
 				entity_animate(me, "shellQuiver", LOOP_INF)
 				v.pullTime = v.pullTime - dt
@@ -175,7 +173,6 @@ end
 
 function dieNormal(me)
 	if not v.isShell and not v.hasShell then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		--50% poultice, 20% healing poultice, 2% sight poultice, 2% leeching poultice
 		local p = randRange(1, 100)
 		if p >= 1 and p <= 2 then

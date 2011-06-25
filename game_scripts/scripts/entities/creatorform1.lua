@@ -263,7 +263,6 @@ function enterState(me)
 		entity_setStateTime(me, 5)
 	elseif entity_isState(me, STATE_TRANSITION2) then
 		if not v.intrans2 then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			v.intrans2 = true
 			
 			v.n = getNaija()

@@ -61,7 +61,6 @@ end
 
 function update(me, dt)
 	if not v.done then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		v.lifeTime = v.lifeTime - dt
 		if v.lifeTime < 0 then
 			entity_delete(me, 0.2)

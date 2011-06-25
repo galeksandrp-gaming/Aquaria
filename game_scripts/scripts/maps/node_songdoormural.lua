@@ -34,7 +34,6 @@ function activate(me)
 	screenFadeGo(3)
 	watch(3)
 	if not v.giggled then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		emote(EMOTE_NAIJAGIGGLE)
 		v.giggled = true
 	end

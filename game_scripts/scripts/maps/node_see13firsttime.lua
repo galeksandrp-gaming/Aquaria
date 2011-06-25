@@ -37,7 +37,6 @@ end
 
 function update(me, dt)
 	if not v.done then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		if isFlag(FLAG_VISION_ENERGYTEMPLE, 0) and node_isEntityIn(me, v.n) then
 			v.done = true
 			

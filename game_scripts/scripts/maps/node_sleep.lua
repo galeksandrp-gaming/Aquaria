@@ -106,7 +106,6 @@ function activate(me)
 	watch(2)
 	
 	if not visions(me) then	
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		watch(2)
 	
 		fadeIn(1)

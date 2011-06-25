@@ -49,7 +49,6 @@ end
 
 function update(me, dt)
 	if not v.scaling and not entity_isNearObstruction(me, 1) then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		entity_addVel(me, 0, 98*dt)
 		entity_updateCurrents(me, dt)
 		entity_updateMovement(me, dt)
@@ -74,7 +73,6 @@ if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		end
 	end
 	if not v.scaling then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		entity_handleShotCollisions(me)
 	end
 end

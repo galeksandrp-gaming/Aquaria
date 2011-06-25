@@ -203,7 +203,6 @@ function update(me, dt)
 	-- SWIM ANGLE
 	
 	if not v.follower then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		if entity_getState(me) == STATE_GLIDING then
 			v.swimTime = v.swimTime - dt
 			if v.swimTime < 0 then
@@ -300,7 +299,6 @@ if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 	
 	if v.follower then
 		if not v.following and entity_isEntityInRange(me, getNaija(), 512) then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			musicVolume(0.5, 0.2)
 		else
 			musicVolume(1.0, 0.2)
@@ -313,7 +311,6 @@ if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			end
 		end
 		if not v.following then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			if entity_isEntityInRange(me, getNaija(), 800) then
 				if v.singing then
 					v.songNoteTimer = v.songNoteTimer + dt

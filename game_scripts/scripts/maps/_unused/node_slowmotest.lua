@@ -28,7 +28,6 @@ end
 function update(me)
 	if node_isEntityIn(me, getNaija()) then
 		if not v.slow then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			setGameSpeed(0.5, 0.2)
 			v.slow = true
 		end

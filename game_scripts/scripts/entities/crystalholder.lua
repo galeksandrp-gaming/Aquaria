@@ -66,7 +66,6 @@ end
 
 function update(me, dt)
 	if not v.setWaterLevel then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		v.lx,v.ly = entity_getPosition(me)
 		entity_setPosition(me, entity_x(me), getWaterLevel())
 		if not entity_isNearObstruction(me, 1) then

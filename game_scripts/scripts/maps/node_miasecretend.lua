@@ -42,7 +42,6 @@ function update(me, dt)
 		entity_setPosition(v.n, entity_x(v.n), by)
 	end
 	if not v.done and node_isEntityIn(me, getNaija()) then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		v.done = true
 		
 		local cam = getNode("cam")

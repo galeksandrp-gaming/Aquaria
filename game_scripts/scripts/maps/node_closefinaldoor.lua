@@ -41,7 +41,6 @@ function update(me, dt)
 	end
 	
 	if not v.done then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		if node_isEntityIn(me, v.n) and not (entity_isState(v.ent, STATE_CLOSED) or entity_isState(v.ent, STATE_CLOSE)) then
 			entity_setState(v.ent, STATE_CLOSE, -1, 1)
 			v.done = true

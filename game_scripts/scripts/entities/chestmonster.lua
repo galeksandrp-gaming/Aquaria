@@ -119,7 +119,6 @@ end
 function damage(me, attacker, bone, damageType, dmg)
 	if entity_isState(me, STATE_OPEN) and bone == v.head then
 		if not v.hit then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			v.hit = true
 			playSfx("creatorform6-die3")
 

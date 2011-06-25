@@ -85,7 +85,6 @@ end
 function update(me, dt)
 	if entity_isState(me, STATE_IDLE) then
 		if not v.following then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			entity_doCollisionAvoidance(me, dt, 2, 1)
 			
 			if v.following then 
@@ -295,7 +294,6 @@ function songNote(me, note)
 	--bone_scale(v.glowBody, 
 	--[[
 	if not v.spinning then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		v.spinning = true
 		entity_rotate(me, 360+entity_getRotation(me), 1, -1)
 	end

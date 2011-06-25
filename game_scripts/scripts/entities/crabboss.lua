@@ -217,7 +217,6 @@ function update(me, dt)
 			end
 			if not moving then
 				if not v.leftArmAlive and not v.rightArmAlive then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 					if entity_x(v.naija) > entity_x(me)-256 and entity_x(v.naija) < entity_x(me)+256 then
 						if entity_y(v.naija) < entity_y(me)-512 then
 							entity_setState(me, STATE_JUMPPREP)

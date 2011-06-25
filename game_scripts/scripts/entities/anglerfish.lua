@@ -125,7 +125,6 @@ function update(me, dt)
 	end
 	if entity_isState(me, STATE_LUNGE) then
 		if not v.lunging then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			entity_doFriction(me, dt, 1000)
 		else
 			entity_moveTowardsTarget(me, dt, 500)

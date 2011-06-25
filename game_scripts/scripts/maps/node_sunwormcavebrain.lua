@@ -51,7 +51,6 @@ function update(me, dt)
 	end
 	if entity_x(v.n) > node_x(v.past) then
 		if not v.pastDefault then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			setWaterLevel(node_y(v.h1), 2)
 			v.pastDefault = true
 		end

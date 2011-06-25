@@ -110,7 +110,6 @@ function update(me, dt)
 			entity_findTarget(me, 1200)
 		else
 			if not v.angry then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 				if entity_isTargetInRange(me, 400) then
 					v.jumpDelay = v.jumpDelay - dt
 					if v.jumpDelay < 0 then

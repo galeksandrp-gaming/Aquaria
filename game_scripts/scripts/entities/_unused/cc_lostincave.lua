@@ -94,7 +94,6 @@ function update(me, dt)
 		end
 	elseif entity_isState(me, STATE_FOLLOW) then
 		if not v.done then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 			if node_isEntityIn(v.escapeNode, me) then
 				cutScene(me)
 			else

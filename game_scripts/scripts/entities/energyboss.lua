@@ -218,7 +218,6 @@ function update(me, dt)
 		return
 	end
 	if not v.awoken and not v.playedMusic and getFlag(FLAG_ENERGYBOSSDEAD)==0 then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		if not isFlag(FLAG_OMPO, 4) then 
 			if entity_isEntityInRange(me, v.naija, 1220) then
 				emote(EMOTE_NAIJAUGH)
@@ -231,7 +230,6 @@ if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 	end
 	
 	if not v.awoken then return end
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 	
 
 	if entity_isState(me, STATE_COLLAPSED) then

@@ -52,7 +52,6 @@ end
 
 function update(me, dt)
 	if not v.seen and entity_isEntityInRange(me, v.n, 700) then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		if chance(50) then
 			emote(EMOTE_NAIJAGIGGLE)
 		else

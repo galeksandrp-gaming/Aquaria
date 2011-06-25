@@ -44,7 +44,6 @@ end
 
 function update(me, dt)
 	if not v.didInit then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		doInit(me)
 		v.didInit = true
 	end
@@ -56,7 +55,6 @@ if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		entity_setState(v.door, STATE_OPEN)
 	end	
 	if not v.spawned then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		if node_isEntityIn(me, getNaija()) then
 			entity_setState(v.dad, STATE_START)
 			entity_setState(v.mom, STATE_START)

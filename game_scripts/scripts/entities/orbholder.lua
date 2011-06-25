@@ -46,13 +46,11 @@ function update(me, dt)
 			entity_clearVel(v.energyOrb)
 			entity_setPosition(v.energyOrb, entity_x(me), entity_y(me))
 			if not v.openedDoors and entity_isState(v.energyOrb, STATE_CHARGED) then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 				v.openedDoors = true
 				local node = entity_getNearestNode(me)
 				node_activate(node)
 			end
 			if not v.savedOrb and entity_isState(v.energyOrb, STATE_IDLE) then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 				local node = entity_getNearestNode(me)
 				node_activate(node)
 				v.savedOrb = true

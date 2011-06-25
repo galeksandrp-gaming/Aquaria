@@ -193,7 +193,6 @@ function update(me, dt)
 		
 	end
 	if not v.done then
-if not AQUARIA_VERSION then dofile("scripts/entities/entityinclude.lua") end
 		entity_handleShotCollisionsSkeletal(me)
 		v.lifeTime = v.lifeTime - dt
 		if v.lifeTime < 0 then
