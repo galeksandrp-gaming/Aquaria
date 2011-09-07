@@ -31,8 +31,19 @@ SET(LUADIR ${EXTLIBDIR}/lua-5.1.4)
 SET(LUASRCDIR ${LUADIR}/src)
 SET(LIBOGGDIR ${EXTLIBDIR}/libogg-1.2.0)
 SET(LIBVORBISDIR ${EXTLIBDIR}/libvorbis-1.3.1)
+SET(ZLIBDIR ${EXTLIBDIR}/glpng/zlib)
 
 ################ Look for external libraries
+
+### zlib
+
+OPTION(AQUARIA_INTERNAL_ZLIB "Always use included zlib library" FALSE)
+if(NOT AQUARIA_INTERNAL_ZLIB)
+    find_package(ZLIB)
+endif(NOT AQUARIA_INTERNAL_ZLIB)
+if(NOT ZLIB_FOUND)
+    set(ZLIB_INCLUDE_DIRS ${ZLIBDIR})
+endif(NOT ZLIB_FOUND)
 
 ### FreeType
 
@@ -161,7 +172,7 @@ endif (NOT OPENAL_FOUND)
 
 INCLUDE_DIRECTORIES(${BBGEDIR})
 INCLUDE_DIRECTORIES(${BBGEDIR}/GL)
-INCLUDE_DIRECTORIES(${EXTLIBDIR}/glpng/zlib)
+INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${SRCDIR})
 INCLUDE_DIRECTORIES(${FTGLDIR}/include)
 INCLUDE_DIRECTORIES(${FREETYPE_INCLUDE_DIRS})
@@ -387,19 +398,22 @@ SET(BBGE_SRCS
     ${EXTLIBDIR}/glpng/png/pngrutil.c
     ${EXTLIBDIR}/glpng/png/pngset.c
     ${EXTLIBDIR}/glpng/png/pngtrans.c
-    ${EXTLIBDIR}/glpng/zlib/adler32.c
-    ${EXTLIBDIR}/glpng/zlib/crc32.c
-    ${EXTLIBDIR}/glpng/zlib/compress.c
-    ${EXTLIBDIR}/glpng/zlib/deflate.c
-    ${EXTLIBDIR}/glpng/zlib/inffast.c
-    ${EXTLIBDIR}/glpng/zlib/inflate.c
-    ${EXTLIBDIR}/glpng/zlib/inftrees.c
-    ${EXTLIBDIR}/glpng/zlib/trees.c
-    ${EXTLIBDIR}/glpng/zlib/uncompr.c
-    ${EXTLIBDIR}/glpng/zlib/zutil.c
     ${EXTLIBDIR}/tinyxml.cpp
     ${EXTLIBDIR}/tinyxmlerror.cpp
     ${EXTLIBDIR}/tinyxmlparser.cpp
+)
+
+SET(ZLIB_SRCS
+    ${ZLIBDIR}/adler32.c
+    ${ZLIBDIR}/crc32.c
+    ${ZLIBDIR}/compress.c
+    ${ZLIBDIR}/deflate.c
+    ${ZLIBDIR}/inffast.c
+    ${ZLIBDIR}/inflate.c
+    ${ZLIBDIR}/inftrees.c
+    ${ZLIBDIR}/trees.c
+    ${ZLIBDIR}/uncompr.c
+    ${ZLIBDIR}/zutil.c
 )
 
 # Apparently not used at the moment. Listed here just for completeness.
@@ -566,6 +580,12 @@ ENDIF(MACOSX)
 
 SET(OPTIONAL_LIBS ${OPTIONAL_LIBS} ${SDL_LIBRARY})
 SET(OPTIONAL_LIBS ${OPTIONAL_LIBS} ${OPENAL_LIBRARY})
+
+IF(ZLIB_FOUND)
+    SET(OPTIONAL_LIBS ${OPTIONAL_LIBS} ${ZLIB_LIBRARIES})
+ELSE(ZLIB_FOUND)
+    SET(OPTIONAL_SRCS ${OPTIONAL_SRCS} ${ZLIB_SRCS})
+ENDIF(ZLIB_FOUND)
 
 IF(FREETYPE_FOUND)
     SET(OPTIONAL_LIBS ${OPTIONAL_LIBS} ${FREETYPE_LIBRARIES})
