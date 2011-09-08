@@ -32,6 +32,7 @@ SET(LUASRCDIR ${LUADIR}/src)
 SET(LIBOGGDIR ${EXTLIBDIR}/libogg-1.2.0)
 SET(LIBVORBISDIR ${EXTLIBDIR}/libvorbis-1.3.1)
 SET(ZLIBDIR ${EXTLIBDIR}/glpng/zlib)
+SET(PNGDIR ${EXTLIBDIR}/glpng/png)
 
 ################ Look for external libraries
 
@@ -44,6 +45,20 @@ endif(NOT AQUARIA_INTERNAL_ZLIB)
 if(NOT ZLIB_FOUND)
     set(ZLIB_INCLUDE_DIRS ${ZLIBDIR})
 endif(NOT ZLIB_FOUND)
+
+### PNG
+
+OPTION(AQUARIA_INTERNAL_PNG "Always use included PNG library" FALSE)
+if(NOT AQUARIA_INTERNAL_PNG)
+    find_package(PNG)
+endif(NOT AQUARIA_INTERNAL_PNG)
+if(NOT PNG_FOUND)
+    set(PNG_PNG_INCLUDE_DIR ${PNGDIR})
+    set(PNG_INCLUDE_DIR ${PNG_PNG_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
+endif(NOT PNG_FOUND)
+
+FILE(STRINGS "${PNG_PNG_INCLUDE_DIR}/png.h" PNG_H REGEX "^#define PNG_LIBPNG_VER[^0-9]*[0-9]+")
+STRING(REGEX REPLACE "^.*PNG_LIBPNG_VER[^0-9]*([0-9]+).*$" "\\1" PNG_LIBPNG_VER "${PNG_H}")
 
 ### FreeType
 
@@ -173,6 +188,7 @@ endif (NOT OPENAL_FOUND)
 INCLUDE_DIRECTORIES(${BBGEDIR})
 INCLUDE_DIRECTORIES(${BBGEDIR}/GL)
 INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${PNG_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(${SRCDIR})
 INCLUDE_DIRECTORIES(${FTGLDIR}/include)
 INCLUDE_DIRECTORIES(${FREETYPE_INCLUDE_DIRS})
@@ -387,21 +403,17 @@ SET(BBGE_SRCS
     ${COCOA_SRCS}
     ${EXTLIBDIR}/glfont2/glfont2.cpp
     ${EXTLIBDIR}/glpng/glpng.c
-    ${EXTLIBDIR}/glpng/png/png.c
-    ${EXTLIBDIR}/glpng/png/pngerror.c
-    ${EXTLIBDIR}/glpng/png/pngget.c
-    ${EXTLIBDIR}/glpng/png/pngmem.c
-    ${EXTLIBDIR}/glpng/png/pngpread.c
-    ${EXTLIBDIR}/glpng/png/pngread.c
-    ${EXTLIBDIR}/glpng/png/pngrio.c
-    ${EXTLIBDIR}/glpng/png/pngrtran.c
-    ${EXTLIBDIR}/glpng/png/pngrutil.c
-    ${EXTLIBDIR}/glpng/png/pngset.c
-    ${EXTLIBDIR}/glpng/png/pngtrans.c
     ${EXTLIBDIR}/tinyxml.cpp
     ${EXTLIBDIR}/tinyxmlerror.cpp
     ${EXTLIBDIR}/tinyxmlparser.cpp
 )
+
+if(NOT "${PNG_LIBPNG_VER}" LESS 10400)
+    SET_SOURCE_FILES_PROPERTIES(
+        ${EXTLIBDIR}/glpng/glpng.c
+        PROPERTIES COMPILE_FLAGS "-DLIBPNG_NEW_API"
+    )
+endif(NOT "${PNG_LIBPNG_VER}" LESS 10400)
 
 SET(ZLIB_SRCS
     ${ZLIBDIR}/adler32.c
@@ -414,6 +426,20 @@ SET(ZLIB_SRCS
     ${ZLIBDIR}/trees.c
     ${ZLIBDIR}/uncompr.c
     ${ZLIBDIR}/zutil.c
+)
+
+SET(PNG_SRCS
+    ${PNGDIR}/png.c
+    ${PNGDIR}/pngerror.c
+    ${PNGDIR}/pngget.c
+    ${PNGDIR}/pngmem.c
+    ${PNGDIR}/pngpread.c
+    ${PNGDIR}/pngread.c
+    ${PNGDIR}/pngrio.c
+    ${PNGDIR}/pngrtran.c
+    ${PNGDIR}/pngrutil.c
+    ${PNGDIR}/pngset.c
+    ${PNGDIR}/pngtrans.c
 )
 
 # Apparently not used at the moment. Listed here just for completeness.
@@ -586,6 +612,12 @@ IF(ZLIB_FOUND)
 ELSE(ZLIB_FOUND)
     SET(OPTIONAL_SRCS ${OPTIONAL_SRCS} ${ZLIB_SRCS})
 ENDIF(ZLIB_FOUND)
+
+IF(PNG_FOUND)
+    SET(OPTIONAL_LIBS ${OPTIONAL_LIBS} ${PNG_LIBRARIES})
+ELSE(PNG_FOUND)
+    SET(OPTIONAL_SRCS ${OPTIONAL_SRCS} ${PNG_SRCS})
+ENDIF(PNG_FOUND)
 
 IF(FREETYPE_FOUND)
     SET(OPTIONAL_LIBS ${OPTIONAL_LIBS} ${FREETYPE_LIBRARIES})
