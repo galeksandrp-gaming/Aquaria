@@ -263,7 +263,11 @@ void RenderObjectLayer::moveToFront(RenderObject *r)
 		r->setIdx(lastUsed);
 		firstFreeIdx = curIdx;
 		while (renderObjects[firstFreeIdx])
+		{
 			firstFreeIdx++;
+			if(firstFreeIdx >= size)
+				firstFreeIdx = 0;
+		}
 	}
 #endif  // RLT_FIXED
 #ifdef RLT_DYNAMIC
