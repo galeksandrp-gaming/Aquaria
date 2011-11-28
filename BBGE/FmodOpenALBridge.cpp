@@ -510,8 +510,6 @@ namespace FMOD {
         return ((OpenAL##cls *) this)->method args; \
     }
 
-static ALenum GVorbisFormat = AL_NONE;
-
 // FMOD::Sound implementation ...
 
 class OpenALSound
@@ -1202,17 +1200,6 @@ FMOD_RESULT OpenALSystem::init(int maxchannels, const FMOD_INITFLAGS flags, cons
     printf("AL_VERSION: %s\n", (char *) alGetString(AL_VERSION));
     printf("AL_EXTENSIONS: %s\n", (char *) alGetString(AL_EXTENSIONS));
     #endif
-
-    SANITY_CHECK_OPENAL_CALL();
-
-    GVorbisFormat = AL_NONE;
-    if (alIsExtensionPresent("AL_EXT_vorbis"))
-        GVorbisFormat = alGetEnumValue("AL_FORMAT_VORBIS_EXT");
-
-#if 0  // Disabled output: every bug report thinks this is the culprit. --ryan.
-    if (GVorbisFormat == AL_NONE)
-        fprintf(stderr, "WARNING: no AL_EXT_vorbis support. We'll use more RAM.\n");
-#endif
 
     SANITY_CHECK_OPENAL_CALL();
 
