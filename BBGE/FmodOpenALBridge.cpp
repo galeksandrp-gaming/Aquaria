@@ -357,7 +357,7 @@ void OggDecoder::decode_loop(OggDecoder *this_)
     while (!this_->stop_thread)
     {
 #ifdef BBGE_BUILD_SDL
-        SDL_Delay(1);
+        SDL_Delay(10);
 #endif
 
         int processed = 0;
